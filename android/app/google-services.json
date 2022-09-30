@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1024545682949",
+    "project_id": "mukurweini-4e769",
+    "storage_bucket": "mukurweini-4e769.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024545682949:android:978c932b73c4d21b530e6c",
+        "android_client_info": {
+          "package_name": "com.example.mukurewini"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1024545682949-e8hhtsg6vrj7it7ps82ajmbll1m1s3cn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPfhILIBs4_z2FoUlJwiDxIdN7uZMRCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1024545682949-e8hhtsg6vrj7it7ps82ajmbll1m1s3cn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
