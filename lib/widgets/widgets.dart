@@ -4,13 +4,13 @@ import 'package:flutter/services.dart';
 const textInputDecoration = InputDecoration(
   labelStyle: TextStyle(color: Colors.white54, fontWeight: FontWeight.w300),
   focusedBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.red, width: 2),
+    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
   ),
   enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.red, width: 2),
+    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
   ),
   errorBorder: OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.red, width: 2),
+    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
   ),
 );
 

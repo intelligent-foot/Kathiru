@@ -25,6 +25,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(backgroundColor:  Theme.of(context).primaryColor,),
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
@@ -52,6 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Full Name",
+                              hintText: 'Full Name',
                               prefix: Icon(
                                 Icons.person,
                                 color: Theme.of(context).primaryColor,
@@ -78,6 +80,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Email",
+                              hintText: 'Email',
                               prefix: Icon(
                                 Icons.email,
                                 color: Theme.of(context).primaryColor,
@@ -105,6 +108,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           obscureText: true,
                           decoration: textInputDecoration.copyWith(
                               labelText: "Password",
+                              hintText: 'Password',
                               prefix: Icon(
                                 Icons.lock,
                                 color: Theme.of(context).primaryColor,
@@ -157,7 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                              
                           children: <TextSpan>[
                             TextSpan(
-                                text: "SignIn here",
+                                text: "Sign In here",
                                 style: TextStyle(
                                     color: Colors.black,
                                       decoration: TextDecoration.underline),

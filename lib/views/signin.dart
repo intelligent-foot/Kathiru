@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
+
 import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/views/signup.dart';
 
@@ -22,9 +25,17 @@ class _SignInScreenState extends State<SignInScreen> {
   final formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";
+  
   AuthService authService = AuthService();
 
   @override
+
+  
+
+
+
+
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -58,6 +69,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Email",
+                              hintText: 'Email',
                               prefix: Icon(
                                 Icons.email,
                                 color: Theme.of(context).primaryColor,
@@ -85,6 +97,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           obscureText: true,
                           decoration: textInputDecoration.copyWith(
                               labelText: "Password",
+                              hintText: 'Password',
                               prefix: Icon(
                                 Icons.lock,
                                 color: Theme.of(context).primaryColor,
@@ -129,15 +142,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         Text.rich(TextSpan(
                           text: "Don't have an account ? ",
                           style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 14),
-                              
+                              color: Colors.black, fontSize: 14),
                           children: <TextSpan>[
                             TextSpan(
                                 text: "Register here",
                                 style: const TextStyle(
                                     color: Colors.black,
-                                     
                                     decoration: TextDecoration.underline),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
@@ -162,19 +172,13 @@ class _SignInScreenState extends State<SignInScreen> {
           .then((value) async {
         if (value == true) {
           QuerySnapshot snapshot =
-          await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
-              .gettingUserData(email);
+              await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
+                  .gettingUserData(email);
 
-              // Saving values to our SF
-              await HelperFunctions.saveUserLoggedInStatus(true);
+          // Saving values to our SF
+          await HelperFunctions.saveUserLoggedInStatus(true);
           await HelperFunctions.saveUserEmailSF(email);
-          await HelperFunctions.saveUserNameSF(
-            snapshot.docs[0]['fullName']
-          );
-
-
-
-
+          await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
 
           nextScreenReplace(context, const HomeScreen());
         } else {

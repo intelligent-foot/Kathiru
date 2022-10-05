@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/database_service.dart';
@@ -7,17 +8,13 @@ class AuthService {
 
 //login
 
-
-  Future loginWithUserNameandPassword(
-       String email, String password) async {
+  Future loginWithUserNameandPassword(String email, String password) async {
     try {
       User user = (await firebaseAuth.signInWithEmailAndPassword(
               email: email, password: password))
           .user!;
 
       if (user != null) {
-        
-       
         return true;
       }
     } on FirebaseAuthException catch (e) {
@@ -68,3 +65,5 @@ class AuthService {
     }
   }
 }
+
+

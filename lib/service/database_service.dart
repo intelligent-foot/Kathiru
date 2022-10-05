@@ -14,6 +14,7 @@ class DatabaseService {
       "fullName": fullName,
       "email": email,
       "uid": uid,
+      "role" : 'user',
     });
   }
 
