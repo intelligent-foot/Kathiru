@@ -14,7 +14,7 @@ class DatabaseService {
       "fullName": fullName,
       "email": email,
       "uid": uid,
-      "role" : 'user',
+      "role": 'user',
     });
   }
 
@@ -25,4 +25,16 @@ class DatabaseService {
         await userCollection.where("email", isEqualTo: email).get();
     return snapshot;
   }
+// upload milk info
+
+  //upload vet info
+  uploadVetInfo(userMap) async {
+    return await userCollection.doc(uid).update(userMap).catchError((e) {
+      print(e.toString());
+    });
+  }
+
+// get vet info
+
+  
 }

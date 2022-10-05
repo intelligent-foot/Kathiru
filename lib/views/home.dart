@@ -5,9 +5,13 @@ import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
 import 'package:mukurewini/views/Admin.dart';
+import 'package:mukurewini/views/Vets.dart';
+import 'package:mukurewini/views/bottom.dart';
+import 'package:mukurewini/views/chat.dart';
 import 'package:mukurewini/views/profile_screen.dart';
 import 'package:mukurewini/views/search.dart';
 import 'package:mukurewini/views/signin.dart';
+import 'package:mukurewini/views/users.dart';
 import 'package:mukurewini/widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -82,6 +86,16 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  int currentIndex = 0;
+  final screens = [
+    HomeScreen(),
+    ProfileScreen(
+      email: '',
+      userName: '',
+    ),
+    ChatScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,6 +106,42 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             icon: Icon(Icons.search))
       ]),
+
+      
+    
+      bottomNavigationBar: BottomNavigationBar(
+        
+        
+        
+          currentIndex: currentIndex,
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+          
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+              
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.business_center),
+              label: 'Bussiness',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat),
+              
+              label: 'Chat',
+            ),
+            
+          ],
+          
+          
+          ),
+
+          
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 50),
@@ -193,6 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -202,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
             fit: BoxFit.cover,
           ),
         ),
+        
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -217,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeScreen()));
+                              builder: (context) => Users()));
                     },
                     child: Card(
                       elevation: 10,
@@ -238,17 +290,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context) => HomeScreen()));
                     },
                     child: Card(
-                              elevation: 10,
-                              child: Center(
-                                  child: Text(
-                                'Manager',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              ),
-                            ),
-                          ),
-                           GestureDetector(
+                      elevation: 10,
+                      child: Center(
+                        child: Text(
+                          'Manager',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
                     onTap: () {
                       Navigator.push(
                           context,
@@ -256,40 +308,41 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context) => HomeScreen()));
                     },
                     child: Card(
-                              elevation: 10,
-                              child: Center(
-                                  child: Text(
-                                'Dairy Records',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              ),
-                            ),
-                          ),
-                           GestureDetector(
+                      elevation: 10,
+                      child: Center(
+                        child: Text(
+                          'Dairy Records',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
                     onTap: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeScreen()));
+                              builder: (context) => RegisterVet(name: '',)));
                     },
                     child: Card(
-                              elevation: 10,
-                              child: Center(
-                                  child: Text(
-                                'Veterinary',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              ),
-                            ),
-                          ),
-
-                  
+                      elevation: 10,
+                      child: Center(
+                        child: Text(
+                          'Veterinary',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 50,),
+            const SizedBox(
+              height: 40,
+            ),
+            
           ],
         ),
       ),

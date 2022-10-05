@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
+import 'package:mukurewini/views/Admin.dart';
 
 import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/views/signup.dart';
@@ -25,16 +26,33 @@ class _SignInScreenState extends State<SignInScreen> {
   final formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";
-  
+  String role = 'user';
+
   AuthService authService = AuthService();
 
   @override
+  void initState() {
+    super.initState();
+    _checkRole();
+  }
 
-  
+  void _checkRole() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    final DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
 
+    setState(() {
+      role = snapshot['role'];
+    });
 
-
-
+    if (role == 'user') {
+      nextScreen(context, HomeScreen());
+    } else if (role == 'admin') {
+      nextScreen(context, AdminScreen());
+    }
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
