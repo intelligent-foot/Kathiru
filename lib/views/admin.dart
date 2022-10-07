@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/widgets/widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mukurewini/service/database_service.dart';
+import 'package:mukurewini/service/auth_service.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -14,6 +18,30 @@ class _AdminScreenState extends State<AdminScreen> {
   String email = "";
   String uid = "";
   String role = "";
+AuthService authService = AuthService();
+
+  //void initState() {
+   // super.initState();
+    //_checkRole();
+ // }
+
+ // void _checkRole() async {
+   // User? user = FirebaseAuth.instance.currentUser;
+    //final DocumentSnapshot snapshot = await FirebaseFirestore.instance
+       // .collection('users')
+        //.doc(user!.uid)
+       // .get();
+
+   // setState(() {
+    //  role = snapshot['role'];
+   // });
+
+  //  if (role == 'user') {
+     // nextScreen(context, HomeScreen());
+   // } else if (role == 'admin') {
+   //   nextScreen(context, AdminScreen());
+   // }
+  //}
 
   @override
   Widget build(BuildContext context) {

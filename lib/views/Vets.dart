@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:mukurewini/service/database_service.dart';
 
@@ -14,11 +16,11 @@ class _RegisterVetState extends State<RegisterVet> {
   TextEditingController experienceController = new TextEditingController();
   //DatabaseMethods databaseMethods = new DatabaseMethods();
 
-   String selected = '';
-   String selectedHour ='';
+  String selected = '';
+  String selectedHour = '';
   bool isLoading = false;
   Widget displayBoard() {
-    List loan = [
+    List items = [
       "Microbiology",
       "Nutrition",
       "Ophthalmology",
@@ -27,8 +29,9 @@ class _RegisterVetState extends State<RegisterVet> {
       "Theriogenology",
       "Toxicology"
     ];
-    List<DropdownMenuItem> menuItemList = loan
-        .map((val) => DropdownMenuItem(value: val, child: Text(val)))
+    String? selectedItem = items[0];
+    List<DropdownMenuItem> menuItemList = items
+        .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))
         .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -42,12 +45,11 @@ class _RegisterVetState extends State<RegisterVet> {
         ),
         child: Card(
           child: DropdownButtonFormField(
-            value: selected,
-            validator: (value) =>
-                value == null ? 'Please select specialization' : null,
-            onChanged: (val) => setState(() => selected = val),
+            value: selectedItem,
+            validator: (value) => value == null ? 'Please select specialization' : null,
+            onChanged: (item) => setState(() => selectedItem = item) ,
             items: menuItemList,
-            hint: Text("choose specialization"),
+            hint: Text('Choose specialzation'),
           ),
         ),
       ),
@@ -59,8 +61,9 @@ class _RegisterVetState extends State<RegisterVet> {
       "6AM - 6PM",
       "6PM - 6AM",
     ];
+     String? selectedItem = loan[0];
     List<DropdownMenuItem> menuItemList = loan
-        .map((val) => DropdownMenuItem(value: val, child: Text(val)))
+        .map((loan) => DropdownMenuItem(value: loan, child: Text(loan)))
         .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -74,10 +77,10 @@ class _RegisterVetState extends State<RegisterVet> {
         ),
         child: Card(
           child: DropdownButtonFormField(
-            value: selectedHour,
+            value: selectedItem,
             validator: (value) =>
                 value == null ? 'Please select working Hours' : null,
-            onChanged: (val) => setState(() => selectedHour = val),
+            onChanged: (loan) => setState(() => selectedItem = loan),
             items: menuItemList,
             hint: Text("choose working hours"),
           ),
@@ -86,25 +89,7 @@ class _RegisterVetState extends State<RegisterVet> {
     );
   }
 
-  
-
-  submitVetsDetails() async {
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
-      });
-      print("done");
-      Map<String, dynamic> userInfoMap = {
-        'vet name': widget.name,
-        "specialization": selected,
-        "Charges": priceController.text,
-        "working hours": selectedHour,
-        "experience": experienceController.text,
-      };
-
-      //databaseMethods.uploadVetInfo(userInfoMap);
-    }
-  }
+  submitVetsDetails() {}
 
   @override
   Widget build(BuildContext context) {
@@ -133,17 +118,17 @@ class _RegisterVetState extends State<RegisterVet> {
                       validator: (val) {
                         return val!.isEmpty ? "Cannot be empty" : null;
                       },
-                      initialValue: widget.name,
+                     // initialValue: widget.name,
                       style: TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
                           enabledBorder: OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.white, width: 2.0)),
+                                  BorderSide(color: Colors.blueAccent, width: 2.0)),
                           focusedBorder: OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.pink, width: 2.0))),
+                                  BorderSide(color: Colors.blueAccent, width: 2.0))),
                     ),
                   ),
                 ),
@@ -182,7 +167,7 @@ class _RegisterVetState extends State<RegisterVet> {
                                   BorderSide(color: Colors.white, width: 2.0)),
                           focusedBorder: OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.pink, width: 2.0))),
+                                  BorderSide(color: Colors.blueAccent, width: 2.0))),
                     ),
                   ),
                 ),
@@ -217,7 +202,7 @@ class _RegisterVetState extends State<RegisterVet> {
                                   BorderSide(color: Colors.white, width: 2.0)),
                           focusedBorder: OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.pink, width: 2.0))),
+                                  BorderSide(color: Colors.blueAccent, width: 2.0))),
                     ),
                   ),
                 ),
@@ -229,8 +214,8 @@ class _RegisterVetState extends State<RegisterVet> {
                   height: 40,
                 ),
                 ElevatedButton(
-                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.blue)),
-                  
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.blue)),
                   onPressed: () {
                     submitVetsDetails();
                   },
