@@ -14,11 +14,13 @@ class _RegisterVetState extends State<RegisterVet> {
   final formKey = GlobalKey<FormState>();
   TextEditingController priceController = new TextEditingController();
   TextEditingController experienceController = new TextEditingController();
-  //DatabaseMethods databaseMethods = new DatabaseMethods();
+  TextEditingController userNameController = new TextEditingController();
+  DatabaseService databaseService = DatabaseService();
 
-  String selected = '';
-  String selectedHour = '';
+  String? selected;
+  String? selectedHour;
   bool isLoading = false;
+
   Widget displayBoard() {
     List items = [
       "Microbiology",
@@ -29,9 +31,9 @@ class _RegisterVetState extends State<RegisterVet> {
       "Theriogenology",
       "Toxicology"
     ];
-    String? selectedItem = items[0];
+    //String? selectedItem = items[0];
     List<DropdownMenuItem> menuItemList = items
-        .map((item) => DropdownMenuItem<String>(value: item, child: Text(item)))
+        .map((val) => DropdownMenuItem(value: val, child: Text(val)))
         .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -45,9 +47,10 @@ class _RegisterVetState extends State<RegisterVet> {
         ),
         child: Card(
           child: DropdownButtonFormField(
-            value: selectedItem,
-            validator: (value) => value == null ? 'Please select specialization' : null,
-            onChanged: (item) => setState(() => selectedItem = item) ,
+            value: selected,
+            validator: (value) =>
+                value == null ? 'Please select specialization' : null,
+            onChanged: (item) => setState(() => selected = item),
             items: menuItemList,
             hint: Text('Choose specialzation'),
           ),
@@ -56,14 +59,39 @@ class _RegisterVetState extends State<RegisterVet> {
     );
   }
 
+  submitVetDetails() async {
+    print('priceController is ${priceController.text}');
+    if (formKey.currentState!.validate()) {
+      print(priceController.text);
+      setState(() {
+        isLoading = true;
+      });
+      print('done');
+      print('fullName is ${widget.name}');
+      print('specialization is ${selected}');
+      print('experience is ${experienceController.text}');
+      print('working hour is ${selectedHour}');
+
+      Map<String, dynamic> UserInfoMap = {
+        "fullName": userNameController.text,
+        "specialization": selected,
+        "charges": priceController.text,
+        "working hours": selectedHour,
+        "experience": experienceController.text,
+      };
+
+      databaseService.uploadVetInfo(UserInfoMap);
+    }
+  }
+
   Widget showWorkingHours() {
     List loan = [
       "6AM - 6PM",
       "6PM - 6AM",
     ];
-     String? selectedItem = loan[0];
+    // String? selectedItem = loan[0];
     List<DropdownMenuItem> menuItemList = loan
-        .map((loan) => DropdownMenuItem(value: loan, child: Text(loan)))
+        .map((val) => DropdownMenuItem(value: val, child: Text(val)))
         .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -77,10 +105,10 @@ class _RegisterVetState extends State<RegisterVet> {
         ),
         child: Card(
           child: DropdownButtonFormField(
-            value: selectedItem,
+            value: selectedHour,
             validator: (value) =>
                 value == null ? 'Please select working Hours' : null,
-            onChanged: (loan) => setState(() => selectedItem = loan),
+            onChanged: (val) => setState(() => selectedHour = val),
             items: menuItemList,
             hint: Text("choose working hours"),
           ),
@@ -88,8 +116,6 @@ class _RegisterVetState extends State<RegisterVet> {
       ),
     );
   }
-
-  submitVetsDetails() {}
 
   @override
   Widget build(BuildContext context) {
@@ -118,17 +144,18 @@ class _RegisterVetState extends State<RegisterVet> {
                       validator: (val) {
                         return val!.isEmpty ? "Cannot be empty" : null;
                       },
-                     // initialValue: widget.name,
+                      controller: userNameController,
                       style: TextStyle(color: Colors.black),
                       decoration: InputDecoration(
+                        hintText: 'Enter FullName',
                           fillColor: Colors.white,
                           filled: true,
                           enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.blueAccent, width: 2.0)),
+                              borderSide: BorderSide(
+                                  color: Colors.blueAccent, width: 2.0)),
                           focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.blueAccent, width: 2.0))),
+                              borderSide: BorderSide(
+                                  color: Colors.blueAccent, width: 2.0))),
                     ),
                   ),
                 ),
@@ -166,8 +193,8 @@ class _RegisterVetState extends State<RegisterVet> {
                               borderSide:
                                   BorderSide(color: Colors.white, width: 2.0)),
                           focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.blueAccent, width: 2.0))),
+                              borderSide: BorderSide(
+                                  color: Colors.blueAccent, width: 2.0))),
                     ),
                   ),
                 ),
@@ -201,8 +228,8 @@ class _RegisterVetState extends State<RegisterVet> {
                               borderSide:
                                   BorderSide(color: Colors.white, width: 2.0)),
                           focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.blueAccent, width: 2.0))),
+                              borderSide: BorderSide(
+                                  color: Colors.blueAccent, width: 2.0))),
                     ),
                   ),
                 ),
@@ -217,7 +244,7 @@ class _RegisterVetState extends State<RegisterVet> {
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.blue)),
                   onPressed: () {
-                    submitVetsDetails();
+                    submitVetDetails();
                   },
                   child: Text("Submit"),
                 ),

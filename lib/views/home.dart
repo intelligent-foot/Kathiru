@@ -5,9 +5,12 @@ import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
 import 'package:mukurewini/views/Admin.dart';
+import 'package:mukurewini/views/MilkRecords.dart';
 import 'package:mukurewini/views/Vets.dart';
 import 'package:mukurewini/views/bottom.dart';
 import 'package:mukurewini/views/chat.dart';
+import 'package:mukurewini/views/loan.dart';
+import 'package:mukurewini/views/milk.dart';
 import 'package:mukurewini/views/profile_screen.dart';
 import 'package:mukurewini/views/search.dart';
 import 'package:mukurewini/views/signin.dart';
@@ -106,42 +109,28 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             icon: Icon(Icons.search))
       ]),
-
-      
-    
       bottomNavigationBar: BottomNavigationBar(
-        
-        
-        
-          currentIndex: currentIndex,
-          onTap: (index) {
-            setState(() {
-              currentIndex = index;
-            });
-          },
-          
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-              
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.business_center),
-              label: 'Bussiness',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              
-              label: 'Chat',
-            ),
-            
-          ],
-          
-          
+        currentIndex: currentIndex,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
-
-          
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business_center),
+            label: 'Bussiness',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chat',
+          ),
+        ],
+      ),
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 50),
@@ -243,7 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -253,7 +241,6 @@ class _HomeScreenState extends State<HomeScreen> {
             fit: BoxFit.cover,
           ),
         ),
-        
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -266,10 +253,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: <Widget>[
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Users()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Users()));
                     },
                     child: Card(
                       elevation: 10,
@@ -287,7 +272,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeScreen()));
+                              builder: (context) =>
+                                  MilkAgent(email: '', userName: '',)));
                     },
                     child: Card(
                       elevation: 10,
@@ -305,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeScreen()));
+                              builder: (context) => MilkRecords()));
                     },
                     child: Card(
                       elevation: 10,
@@ -323,7 +309,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => RegisterVet(name: '',)));
+                              builder: (context) => RegisterVet(
+                                    name: '',
+                                  )));
                     },
                     child: Card(
                       elevation: 10,
@@ -342,7 +330,6 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 40,
             ),
-            
           ],
         ),
       ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class MissedRecords extends StatefulWidget {
-  const MissedRecords({super.key});
+   String userName;
+  String email;
+   MissedRecords({Key? key, required this.email, required this.userName});
 
   @override
   State<MissedRecords> createState() => _MissedRecordsState();
