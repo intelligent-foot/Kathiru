@@ -10,6 +10,7 @@ import 'package:mukurewini/views/Vets.dart';
 import 'package:mukurewini/views/bottom.dart';
 import 'package:mukurewini/views/chat.dart';
 import 'package:mukurewini/views/loan.dart';
+import 'package:mukurewini/views/manager.dart';
 import 'package:mukurewini/views/milk.dart';
 import 'package:mukurewini/views/profile_screen.dart';
 import 'package:mukurewini/views/search.dart';
@@ -27,8 +28,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String email = "";
   String userName = "";
+  DocumentSnapshot? userSnapshot;
+  User? user;
 
   AuthService authService = AuthService();
+
+  Widget userHome() {
+    return userSnapshot != null
+        ? Container(
+            child: userNam(name: userSnapshot!.get('fullName')),
+          )
+        : Container(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+  }
 
   Widget userNam({required String name}) {
     return Padding(
@@ -219,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               onTap: () {
-                nextScreenReplace(context, AdminScreen());
+                nextScreenReplace(context, manager());
               },
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -245,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+           // userHome(),
             Container(
               padding: EdgeInsets.all(10),
               child: GridView.count(
@@ -272,8 +288,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  MilkAgent(email: '', userName: '',)));
+                              builder: (context) => MilkAgent(
+                                    email: '',
+                                    name: '',
+                                    uid: '',
+                                  )));
                     },
                     child: Card(
                       elevation: 10,
@@ -291,7 +310,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MilkRecords()));
+                              builder: (context) => Records(
+                                    userId: '',
+                                  )));
                     },
                     child: Card(
                       elevation: 10,

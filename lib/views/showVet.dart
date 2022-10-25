@@ -33,7 +33,7 @@ class _VetsState extends State<Vets> {
             ),
             StreamBuilder<Object>(
                 stream: FirebaseFirestore.instance
-                    .collection('wakulima')
+                    .collection('vet')
                     .doc(userId)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -57,7 +57,7 @@ class _VetsState extends State<Vets> {
           // alignment: Alignment.topCenter,
           child: StreamBuilder(
               stream:
-                  FirebaseFirestore.instance.collection("wakulima").snapshots(),
+                  FirebaseFirestore.instance.collection("vet").snapshots(),
               builder: (context, snapshot) {
                 return Container(
                   padding: EdgeInsets.symmetric(horizontal: 24),

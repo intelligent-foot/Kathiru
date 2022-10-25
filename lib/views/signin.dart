@@ -52,6 +52,7 @@ class _SignInScreenState extends State<SignInScreen> {
     } else if (role == 'admin') {
       nextScreen(context, AdminScreen());
     }
+    print('user is ${role}');
   }
 
   Widget build(BuildContext context) {
@@ -83,7 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         const Text("Login now",
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.w400)),
-                        Image.asset("logo-sacco.jpg"),
+                        Image.asset("assets/images/logo-sacco.jpg"),
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Email",

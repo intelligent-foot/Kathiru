@@ -20,12 +20,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String email = "";
   String password = "";
   String fullName = "";
+  int? randomNumber;
   AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor:  Theme.of(context).primaryColor,),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
@@ -153,20 +156,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Text.rich(TextSpan(
                           text: "Already have an account ? ",
                           style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                                 ),
-
-                              
-                             
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
                           children: <TextSpan>[
                             TextSpan(
                                 text: "Sign In here",
                                 style: TextStyle(
                                     color: Colors.black,
-                                      decoration: TextDecoration.underline),
-                                 
-
+                                    decoration: TextDecoration.underline),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     nextScreen(context, const SignInScreen());

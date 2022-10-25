@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mukurewini/helper/helper_functions.dart';
+import 'package:mukurewini/model/user.dart';
 import 'package:mukurewini/service/database_service.dart';
 
 class AuthService {
@@ -23,15 +24,9 @@ class AuthService {
     }
   }
 
-
-
-
-
-
-
-
-
-
+  FirebaseUser? _firebaseUser(User user) {
+    return user != null ? FirebaseUser(userId: user.uid) : null;
+  }
 
 //register
   Future registerUserWithEmailandPassword(
@@ -43,7 +38,11 @@ class AuthService {
 
       if (user != null) {
         // call our db service to update the user data
-        await DatabaseService(uid: user.uid).savingUserData(fullName, email,);
+        await DatabaseService(uid: user.uid).savingUserData(
+          fullName,
+          email,
+          
+        );
         return true;
       }
     } on FirebaseAuthException catch (e) {
@@ -65,5 +64,3 @@ class AuthService {
     }
   }
 }
-
-

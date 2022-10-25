@@ -164,7 +164,7 @@ class _Loan2State extends State<Loan2> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => LoanStatus()));
+                                  builder: (context) => loanStatus()));
                         },
                       ),
                     ),

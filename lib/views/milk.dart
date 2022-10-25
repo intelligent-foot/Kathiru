@@ -12,19 +12,21 @@ import 'package:mukurewini/widgets/widgets.dart';
 import 'package:date_format/date_format.dart';
 
 class MilkAgent extends StatefulWidget {
-  String userName;
+  String name;
   String email;
-  MilkAgent({Key? key, required this.email, required this.userName});
+  String uid;
+  MilkAgent(
+      {Key? key, required this.email, required this.uid, required this.name});
 
   @override
   State<MilkAgent> createState() => _MilkAgentState();
 }
 
 class _MilkAgentState extends State<MilkAgent> {
-  String? email;
-  String? name;
-  Int? farmerId;
-  final formKey = GlobalKey();
+  //late String email;
+  String name = 'Joseph';
+  // String? uid;
+  final formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController todayMilkController = new TextEditingController();
   TextEditingController previousMilkController = new TextEditingController();
@@ -33,7 +35,75 @@ class _MilkAgentState extends State<MilkAgent> {
   String? selected;
   bool isLoading = false;
   String? userName;
-  //DocumentSnapshot? userSnapshot;
+  DocumentSnapshot? userSnapshot;
+  QuerySnapshot? recordsSnapshot;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  //String name = 'Joseph';
+  String? username;
+  DatabaseService databaseService = DatabaseService();
+
+  void initState() {
+    getUserEmail();
+    checkAgentName();
+    super.initState();
+  }
+
+  getUserEmail() async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    String? email;
+    String uid;
+    String? userName;
+    final user = await _auth.currentUser!;
+    setState(() {
+      email = user.email;
+      uid = user.uid;
+      userName = user.displayName;
+      print(email);
+      print(uid);
+      print(userName);
+    });
+  }
+
+  initiateSearch() {
+    DatabaseService.getFarmerRecordsByEmail().then((val) {
+      setState(() {
+        recordsSnapshot = val;
+      });
+    });
+  }
+
+  checkAgentName() async {
+    User? user = await _auth.currentUser;
+
+    databaseService.getUserName().then((val) {
+      setState(() {
+        userSnapshot = val;
+      });
+    });
+  }
+
+  Widget recordList() {
+    /*  return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, snapshot) { */
+    return recordsSnapshot != null
+        ? Container()
+        : ListView.builder(
+            itemCount: recordsSnapshot!.docs.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return recordTile(
+                id: recordsSnapshot!.docs[index].get('uid'),
+                // farmerId: recordsSnapshot!.docs[index].get('uid'),
+                name: recordsSnapshot!.docs[index].get('fullName'),
+                kilograms: recordsSnapshot!.docs[index].get('kilograms'),
+                date: recordsSnapshot!.docs[index].get('date'),
+              );
+            },
+          );
+    //  },
+    // );
+  }
 
   Widget recordTile(
       {required String id,
@@ -96,9 +166,45 @@ class _MilkAgentState extends State<MilkAgent> {
     );
   }
 
-  DocumentReference users = FirebaseFirestore.instance
-      .collection('users')
-      .doc(FirebaseAuth.instance.currentUser!.uid);
+  /*  saveFarmerMilk() async {
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    final user = await _auth.currentUser!;
+    // call the db service
+    DatabaseService.uploadMilkInfo(uid, user.email,
+        DateTime.now().toIso8601String(), int.parse(todayMilkController.text));
+    todayMilkController.clear();
+  } */
+
+  submitMilk() async {
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+      final FirebaseAuth _auth = FirebaseAuth.instance;
+      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+      User? user = await _auth.currentUser;
+
+      FirebaseFirestore.instance.collection("users").doc(user!.uid).set(
+        {
+          "email": widget.email,
+          "date": new DateFormat.yMd().add_jm().format(DateTime.now()),
+          "kilograms": double.parse(todayMilkController.text),
+          "farmerId": widget.uid,
+          "name": widget.name,
+          "location": selected,
+          "servedBy": userSnapshot!["name"],
+        },
+      );
+      //databaseService.uploadMilkInfo(UserInfoMap);
+      final snackBar = SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text('Milk recorded successfully'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection("users");
 
   @override
   Widget build(BuildContext context) {
@@ -171,11 +277,10 @@ class _MilkAgentState extends State<MilkAgent> {
                                           ? "Cannot be empty"
                                           : null;
                                     },
-                                    initialValue:
-                                        "Farmer ID: ${widget.userName}   ",
-                                    style: mediumTextStyle(),
+                                    initialValue: "Farmer ID: ${widget.uid}   ",
+                                    style: TextStyle(color: Colors.black),
                                     decoration: InputDecoration(
-                                        fillColor: Colors.white54,
+                                        fillColor: Colors.white,
                                         filled: true,
                                         enabledBorder: OutlineInputBorder(
                                             borderSide: BorderSide(
@@ -186,7 +291,7 @@ class _MilkAgentState extends State<MilkAgent> {
                                                 color: Colors.pink,
                                                 width: 2.0))),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 50,
                                   ),
                                   TextFormField(
@@ -195,8 +300,8 @@ class _MilkAgentState extends State<MilkAgent> {
                                           ? "Cannot be empty"
                                           : null;
                                     },
-                                    //initialValue: widget.name,
-                                    style: mediumTextStyle(),
+                                    initialValue: widget.name,
+                                    style: TextStyle(color: Colors.black),
                                     decoration: InputDecoration(
                                         fillColor: Colors.white54,
                                         filled: true,
@@ -251,11 +356,12 @@ class _MilkAgentState extends State<MilkAgent> {
                               height: 8,
                             ),
                             TextFormField(
+                              readOnly: true,
                               validator: (val) {
                                 return val!.isEmpty ? "Cannot be empty" : null;
                               },
-                              initialValue: "Served By:${["name"]}",
-                              style: mediumTextStyle(),
+                              initialValue: "Served By: ",
+                              style: TextStyle(color: Colors.black),
                               decoration: InputDecoration(
                                   fillColor: Colors.white54,
                                   filled: true,
@@ -277,15 +383,15 @@ class _MilkAgentState extends State<MilkAgent> {
                                   print("isloading");
                                   isLoading = true;
                                 });
-                                //submitMilk();
+                                submitMilk();
                                 setState(() {
                                   isLoading = false;
-                                  print('Milk is ${todayMilkController.text}');
-
+                                  //   print('Milk is ${todayMilkController.text}');
+                                  //  print('location is ${selected}');
 
                                   todayMilkController.clear();
-                                  print('done');
-                                  print('Milk is ${todayMilkController.text}');
+                                  //   print('done');
+                                  //   print('Milk is ${todayMilkController.text}');
                                 });
                               },
                               child: Container(

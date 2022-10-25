@@ -19,7 +19,7 @@ TextStyle simpleTextFieldStyle() {
 }
 
 TextStyle mediumTextStyle() {
-  return TextStyle(color: Colors.white, fontSize: 17);
+  return TextStyle(color: Colors.black, fontSize: 17);
 }
 
 void showSnackbar(context, color, message) {
@@ -53,3 +53,12 @@ void nextScreenReplace(context, page) {
       ));
 }
 
+TextStyle simpleTextStyle() {
+  return TextStyle(color: Colors.white, fontSize: 16);
+}
+
+Widget appBarMain(BuildContext context) {
+  return AppBar(
+    title: const Text('Wakulima'),
+  );
+}

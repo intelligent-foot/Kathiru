@@ -1,27 +1,32 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mukurewini/model/user.dart';
+import 'package:mukurewini/service/database_service.dart';
 import 'package:mukurewini/views/home.dart';
+import 'package:mukurewini/views/loan.dart';
 import 'package:mukurewini/views/showVet.dart';
 import 'package:mukurewini/widgets/widgets.dart';
+import 'dart:developer';
 
-class MilkRecords extends StatefulWidget {
-  //String userId;
-  const MilkRecords({super.key});
+class Records extends StatefulWidget {
+  String userId;
+  Records({super.key, required this.userId});
 
   @override
-  State<MilkRecords> createState() => _MilkRecordsState();
+  State<Records> createState() => _RecordsState();
 }
 
-class _MilkRecordsState extends State<MilkRecords> {
+class _RecordsState extends State<Records> {
   final formKey = GlobalKey<FormState>();
   TextEditingController todayMilkController = new TextEditingController();
   TextEditingController previousMilkController = new TextEditingController();
   TextEditingController cumulativeMilkController = new TextEditingController();
   QuerySnapshot? recordsSnapshot;
-  DocumentSnapshot? userWakulimaSnapshot;
+  DocumentSnapshot? userSnapshot;
   User? username;
   String? name;
   String? email;
@@ -33,7 +38,87 @@ class _MilkRecordsState extends State<MilkRecords> {
   double? earnedAmount;
   int? farmerId;
 
-  List<String> docIDs = [];
+  FirebaseUser? _firebaseUser(User user) {
+    return user != null ? FirebaseUser(userId: user.uid) : null;
+  }
+  //List<String> docIDs = [];
+
+  Widget recordList() {
+    /*  return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, snapshot) { */
+    return recordsSnapshot != null
+        ? Container()
+        : ListView.builder(
+            itemCount: recordsSnapshot!.docs.length,
+            itemBuilder: (context, index) {
+              var data =
+                  recordsSnapshot!.docs[index].data() as Map<String, dynamic>;
+              return recordTile(
+                email: data['email'],
+                farmerId: data['uid'],
+                name: data['fullName'],
+                kilograms: data['kilograms'],
+                date: data['date'],
+               // log('data: $data');
+              );
+              
+            },
+          );
+          
+    //  },
+   
+    // );
+
+    
+  }
+
+  Future queryValues() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    User user = await _auth.currentUser!;
+    FirebaseFirestore.instance
+        .collection('users')
+        .where("email", isEqualTo: user.email)
+        .get()
+        .then((val) {
+      double tempTotal =
+          val.docs.fold(0, (tot, doc) => tot + doc.get('kilograms'));
+      setState(() {
+        total = tempTotal;
+        earnedAmount = total * price;
+      });
+      debugPrint(total.toString());
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .update({"cummulativeRecords": total});
+    });
+  }
+
+  recommendVet() {
+    if (difference! >= 5) {
+      print('contact a vet');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => _buildAboutDialog(context),
+      );
+    }
+  }
+
+  initiateSearch() {
+    DatabaseService.getFarmerRecordsByEmail().then((val) {
+      setState(() {
+        recordsSnapshot = val;
+        firstAmount = recordsSnapshot!.docs[0].get('kilograms');
+        secondAmount = recordsSnapshot!.docs[1].get('kilograms');
+
+        difference = (secondAmount! - firstAmount!);
+        name = recordsSnapshot!.docs[1].get('fullName');
+        farmerId = recordsSnapshot!.docs[0].get('uid');
+        recommendVet();
+      });
+    });
+  }
 
   Widget _buildAboutText() {
     return new RichText(
@@ -48,9 +133,7 @@ class _MilkRecordsState extends State<MilkRecords> {
     );
   }
 
-  
   Widget _buildAboutDialog(BuildContext context) {
-    // ignore: unnecessary_new
     return new AlertDialog(
       title: Text('Hello $name'),
       content: new Column(
@@ -90,6 +173,14 @@ class _MilkRecordsState extends State<MilkRecords> {
         ),
       ],
     );
+  }
+
+  @override
+  void initState() {
+    initiateSearch();
+
+    super.initState();
+    queryValues();
   }
 
   Widget recordTile(
@@ -147,7 +238,7 @@ class _MilkRecordsState extends State<MilkRecords> {
                 ),
                 Center(
                   child: Text(
-                    'Farmer Id: $farmerId',
+                    'Farmer Id: ',
                     // style: mediumTextStyle()
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -160,7 +251,7 @@ class _MilkRecordsState extends State<MilkRecords> {
                 ),
                 Center(
                   child: Text(
-                    '  Date and time sold:\n$date',
+                    '  Date and time sold:',
                     // style: mediumTextStyle()
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -173,11 +264,11 @@ class _MilkRecordsState extends State<MilkRecords> {
                 ),
                 Center(
                   child: Text(
-                    'Email: $email',
+                    'Email: ',
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
-                      fontFamily: 'Nunito-Regular',
+                      // fontFamily: 'Nunito-Regular',
                     ),
                   ),
                 ),
@@ -190,7 +281,7 @@ class _MilkRecordsState extends State<MilkRecords> {
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
-                      fontFamily: 'Nunito',
+                      // fontFamily: 'Nunito',
                     ),
                   ),
                 ),
@@ -203,7 +294,7 @@ class _MilkRecordsState extends State<MilkRecords> {
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
-                      fontFamily: 'Nunito',
+                      // fontFamily: 'Nunito',
                     ),
                   ),
                 ),
@@ -228,11 +319,11 @@ class _MilkRecordsState extends State<MilkRecords> {
               stream:
                   FirebaseFirestore.instance.collection("users").snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting)
                   return Center(
                     child: CircularProgressIndicator(),
                   );
-                }
+
                 return Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 24,
@@ -269,11 +360,12 @@ class _MilkRecordsState extends State<MilkRecords> {
                             ),
                           ),
                         ),
+                        
                         // recordList(),
-                        SizedBox(
+                        const SizedBox(
                           height: 12.0,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 50,
                         ),
                         GestureDetector(
@@ -281,7 +373,11 @@ class _MilkRecordsState extends State<MilkRecords> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => HomeScreen()));
+                                    builder: (context) => Loans(
+                                          farmerId: '',
+                                          name: '',
+                                          total: 23,
+                                        )));
                           },
                           child: Container(
                             alignment: Alignment.bottomCenter,

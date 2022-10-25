@@ -12,8 +12,9 @@ import 'package:mukurewini/views/profile_screen.dart';
 import 'package:mukurewini/widgets/widgets.dart';
 
 class Users extends StatefulWidget {
-  
-  const Users({super.key,});
+  const Users({
+    super.key,
+  });
 
   @override
   State<Users> createState() => _UsersState();
@@ -80,8 +81,7 @@ class _UsersState extends State<Users> {
 }
 
 class Farmer extends StatefulWidget {
-  
-   const Farmer({super.key});
+  const Farmer({super.key});
 
   @override
   State<Farmer> createState() => _FarmerState();
@@ -171,7 +171,11 @@ class _FarmerState extends State<Farmer> {
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
                 onTap: () {
-                  
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MilkAgent(
+                          email: 'email', uid: 'uid', name: name)));
                 },
                 tileColor: Colors.blueGrey,
                 title: GetUserName(documentId: docIDs[index]),
@@ -196,6 +200,9 @@ class _SearchFarmerState extends State<SearchFarmer> {
   TextEditingController searchTextEditingController = TextEditingController();
   QuerySnapshot? searchSnapshot;
   QuerySnapshot? recordsSnapshot;
+  String name = '';
+  CollectionReference _firebaseFirestore =
+      FirebaseFirestore.instance.collection('users');
 
   /*  Widget searchList() {
     return searchSnapshot != null
@@ -223,7 +230,7 @@ class _SearchFarmerState extends State<SearchFarmer> {
     print('search results is ${searchTextEditingController.text}');
   }
 
-  Widget SearchTile({String? userName, int? farmerId, String? email}) {
+  Widget SearchTile({String? userName, String? farmerId, String? email}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
@@ -247,7 +254,7 @@ class _SearchFarmerState extends State<SearchFarmer> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                    builder: (context) => MilkAgent(email: 'email', name: 'name', uid: 'uid',),
                   ));
             },
             child: Container(
@@ -264,47 +271,93 @@ class _SearchFarmerState extends State<SearchFarmer> {
       ),
     );
   }
+  // CollectionReference _firebaseFirestore =
+  //   FirebaseFirestore.instance.collection('users');
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          Container(
-            color: Color(0x54FFFFFF),
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                    child: TextField(
-                  controller: searchTextEditingController,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                      hintText: 'search farmer...',
-                      hintStyle: TextStyle(color: Colors.greenAccent),
-                      border: InputBorder.none),
-                )),
-                GestureDetector(
-                  onTap: () {
-                    initiateSearch();
-                  },
-                  child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            const Color(0x36FFFFFF),
-                            const Color(0x0FFFFFFF)
-                          ]),
-                          borderRadius: BorderRadius.circular(40)),
-                      padding: EdgeInsets.all(12),
-                      child: Image.asset('assets/images/search_white.png')),
-                )
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Card(
+          child: TextField(
+            decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search), hintText: 'search...'),
+            onChanged: (value) {
+              setState(() {
+                name = value;
+              });
+            },
           ),
-          //  searchList()
-        ],
+        ),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshots) {
+          return (snapshots.connectionState == ConnectionState.waiting)
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ListView.builder(
+                  itemCount: snapshots.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var data = snapshots.data!.docs[index].data()
+                        as Map<String, dynamic>;
+                    if (name.isEmpty) {
+                      return ListTile(
+                        title: Text(
+                          data['fullName'],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          data['email'],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    }
+                    if (data['fullName']
+                        .toString()
+                        .toLowerCase()
+                        .startsWith(name.toLowerCase())) {
+                      return SearchTile(
+                        userName: data['fullName'],
+                        farmerId: data['uid'],
+                        email: data['email']
+                      );
+
+                      /* ListTile(
+                        title: Text(
+                          data['fullName'],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          data['email'],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ); */
+                    }
+                    return Container();
+                  });
+        },
       ),
     );
   }
