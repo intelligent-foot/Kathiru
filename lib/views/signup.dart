@@ -52,7 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const Text("Create your account",
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.w400)),
-                        Image.asset("logo-sacco.jpg"),
+                        Image.asset("assets/images/logo-sacco.jpg"),
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Full Name",

@@ -77,12 +77,18 @@ class _managerState extends State<manager> {
                                 "loan status": "approved",
                               },
                             );
+                            final snackBar = SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text('loan approved successfully'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                           },
+                          
                         ),
                 ),
               );
             })
         : Container();
+        
   }
 
   Widget loanList2() {
@@ -109,16 +115,20 @@ class _managerState extends State<manager> {
                          // color: Colors.redAccent,
                          // textColor: Colors.white,
                           onPressed: ()  async {
-                            /* final FirebaseAuth _auth = FirebaseAuth.instance;
+                            final FirebaseAuth _auth = FirebaseAuth.instance;
                             final FirebaseFirestore _firestore = FirebaseFirestore.instance;
                             User user = await _auth.currentUser!;
                             FirebaseFirestore.instance
                                 .collection("loan")
                                 .doc(
-                                    recordsSnapshot!.docs[index].get('loan id'))
+                                    recordsSnapshot!.docs[index].get('id'))
                                 .update({
                               "status": "denied",
-                            });  */
+                            });  
+                            final snackBar = SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text('loan denied'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                           },
                         ),
                 ),
@@ -151,12 +161,14 @@ class _managerState extends State<manager> {
                       User user = await _auth.currentUser!;
                       FirebaseFirestore.instance
                           .collection("loan")
-                          .doc(recordsSnapshot!.docs[index].get('loan id'))
+                          .doc(recordsSnapshot!.docs[index].get('id'))
                           .delete();
                     },
                   ),
+                  
                 ),
               );
+              
             })
         : Container();
   }

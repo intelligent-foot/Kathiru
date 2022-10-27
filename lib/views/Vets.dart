@@ -81,6 +81,10 @@ class _RegisterVetState extends State<RegisterVet> {
       };
 
       databaseService.uploadVetInfo(UserInfoMap);
+    final snackBar = const SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text('Vet details submitted successfully'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 

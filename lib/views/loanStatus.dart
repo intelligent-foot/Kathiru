@@ -1,5 +1,3 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +16,10 @@ class loanStatus extends StatefulWidget {
 // ignore: camel_case_types
 class _loanStatusState extends State<loanStatus> {
   final formKey = GlobalKey<FormState>();
-  TextEditingController payLoanController =  TextEditingController();
-  TextEditingController payLoan2Controller =  TextEditingController();
-  TextEditingController previousMilkController =  TextEditingController();
-  TextEditingController cumulativeMilkController =  TextEditingController();
+  TextEditingController payLoanController = TextEditingController();
+  TextEditingController payLoan2Controller = TextEditingController();
+  TextEditingController previousMilkController = TextEditingController();
+  TextEditingController cumulativeMilkController = TextEditingController();
   DatabaseService databaseService = DatabaseService();
   AuthService authService = AuthService();
 
@@ -32,8 +30,9 @@ class _loanStatusState extends State<loanStatus> {
   String? email;
   double total = 0.0;
 
-  Widget recordList() {
-    return recordsSnapshot != null
+  /* Widget recordList() {
+    return  
+    recordsSnapshot != null
         ? Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListView.builder(
@@ -41,7 +40,8 @@ class _loanStatusState extends State<loanStatus> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return recordTile(
-                      loan: recordsSnapshot!.docs[index].get('loan'),
+                      loan:
+                       recordsSnapshot!.docs[index].get('loan'),
                       loanStatus:
                           recordsSnapshot!.docs[index].get("loan status"),
                       repayment:
@@ -53,6 +53,36 @@ class _loanStatusState extends State<loanStatus> {
         : Container(
             child:const Text('no loans'),
           );
+  }
+ */
+
+  Widget recordList() {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('loan').snapshots(),
+        builder: (context, snapshot) {
+          return (snapshot.connectionState == ConnectionState)
+              ? Container()
+              : ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    var data = snapshot.data!.docs[index].data()
+                        as Map<String, dynamic>;
+                    return recordTile(
+                      loan: data['loan'],
+                      loanStatus: data['loan status'],
+                      repayableLoan:
+                          data['payableLoan'],
+                      repayment:
+                          data['repayment period'],
+                    );
+                  },
+                );
+        },
+      ),
+    );
   }
 
   initiateSearch() {
@@ -71,7 +101,7 @@ class _loanStatusState extends State<loanStatus> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
-        boxShadow:const [
+        boxShadow: const [
           BoxShadow(color: Colors.green, spreadRadius: 3),
         ],
       ),
@@ -146,7 +176,7 @@ class _loanStatusState extends State<loanStatus> {
                 ),
               ),
             ),
-          const  Divider(),
+            const Divider(),
             Expanded(
               child: Center(
                 child: Text(
@@ -182,7 +212,6 @@ class _loanStatusState extends State<loanStatus> {
     );
   }
 
-
   @override
   void initState() {
     initiateSearch();
@@ -190,7 +219,8 @@ class _loanStatusState extends State<loanStatus> {
     super.initState();
   }
 
-  Future<dynamic> startTransaction({required double amount, required String phone}) async {
+  Future<dynamic> startTransaction(
+      {required double amount, required String phone}) async {
     dynamic transactionInitialisation;
     //Wrap it with a try-catch
     try {
@@ -230,26 +260,26 @@ class _loanStatusState extends State<loanStatus> {
         child: Form(
           key: formKey,
           child: Container(
-            // height: MediaQuery.of(context).size.height - 50,
+             height: MediaQuery.of(context).size.height - 50,
             alignment: Alignment.topCenter,
             child: StreamBuilder(
                 stream:
                     FirebaseFirestore.instance.collection("loan").snapshots(),
                 builder: (context, snapshot) {
                   return Container(
-                    // padding: EdgeInsets.symmetric(horizontal: 24),
+                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                        const  SizedBox(
+                          const SizedBox(
                             height: 20,
                           ),
                           recordList(),
-                       const   SizedBox(
+                          const SizedBox(
                             height: 50,
                           ),
-                          recordsSnapshot != null &&
-                                  recordsSnapshot!.docs.isNotEmpty
+                          // ignore: unnecessary_null_comparison
+                          snapshot != null
                               ? TextFormField(
                                   keyboardType: TextInputType.number,
                                   validator: (val) {
@@ -271,16 +301,17 @@ class _loanStatusState extends State<loanStatus> {
                                               color: Colors.green,
                                               width: 2.0))),
                                 )
-                              :  const Text("You have no loans"),
-                       const   SizedBox(
+                              : const Text("You have no loans"),
+                          const SizedBox(
                             height: 50,
                           ),
-                          recordsSnapshot != null &&
-                                  recordsSnapshot!.docs.isNotEmpty
+                          // ignore: unnecessary_null_comparison
+                          snapshot != null /* &&
+                                  snapshot!.docs.isNotEmpty */
                               ? Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     boxShadow: const [
                                       BoxShadow(
                                           color: Colors.green, spreadRadius: 3),
@@ -296,11 +327,11 @@ class _loanStatusState extends State<loanStatus> {
                                             phone: "254713659502");
                                       }
                                     },
-                                    child:const Text("Pay Loan"),
+                                    child: const Text("Pay Loan"),
                                   ),
                                 )
                               : const Text("You have no loans"),
-                        const  SizedBox(
+                          const SizedBox(
                             height: 40,
                           ),
                           Container(
@@ -320,7 +351,7 @@ class _loanStatusState extends State<loanStatus> {
                                         builder: (context) =>
                                             )); */
                               },
-                              child:const Text("Other Loans"),
+                              child: const Text("Other Loans"),
                             ),
                           )
                         ]),

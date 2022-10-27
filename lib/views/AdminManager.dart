@@ -1,22 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mukurewini/views/users.dart';
+import 'manager.dart';
 
-class Admin extends StatefulWidget {
-  const Admin({super.key, Key , required this.user});
+
+class AdminManager extends StatefulWidget {
+  const AdminManager({Key? key,required this.user}) : super(key: key);
   final User user;
 
   @override
   _AdminState createState() => _AdminState();
 }
 
-class _AdminState extends State<Admin> {
+class _AdminState extends State<AdminManager> {
   String? userId;
   void _getUser() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    User user = await FirebaseAuth.instance.currentUser!;
     setState(() {
-      userId = user!.uid;
+      userId = user.uid;
     });
   }
 
@@ -58,7 +59,6 @@ class _AdminState extends State<Admin> {
   }
 
   Center checkRole(DocumentSnapshot snapshot) {
-  
     // ignore: unnecessary_null_comparison
     if (snapshot.data == null) {
       return const Center(
@@ -76,17 +76,18 @@ class _AdminState extends State<Admin> {
     return Center(
         child: TextButton(
       child: const Text(
-        'Go to Dairy', style: TextStyle(color:Colors.blue ),
+        'Access Farmers Loans',
+        style: TextStyle(color: Colors.blue,),
         ),
-      //color: Colors.blue,
+      
       onPressed: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Users()));
+            context, MaterialPageRoute(builder: (context) => manager()));
       },
     ));
   }
 
   Center userPage(DocumentSnapshot snapshot) {
-    return const Center(child: Text("You are not an admin"));
+    return Center(child: Text("You are not a manager"));
   }
 }

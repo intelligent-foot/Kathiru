@@ -31,7 +31,7 @@ class _SignInScreenState extends State<SignInScreen> {
   AuthService authService = AuthService();
 
   @override
-  void initState() {
+  /* void initState() {
     super.initState();
     _checkRole();
   }
@@ -53,7 +53,7 @@ class _SignInScreenState extends State<SignInScreen> {
       nextScreen(context, AdminScreen());
     }
     print('user is ${role}');
-  }
+  } */
 
   Widget build(BuildContext context) {
     return Scaffold(

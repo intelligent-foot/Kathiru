@@ -31,7 +31,8 @@ class DatabaseService {
       "fullName": fullName,
       "email": email,
       "uid": uid,
-      "role": 'user',
+      "admin": false,
+      
       'joinedAt': formattedDate,
       'createdAt': Timestamp.now(),
       "shares": 0,

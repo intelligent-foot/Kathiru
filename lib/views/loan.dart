@@ -38,8 +38,8 @@ class _LoansState extends State<Loans> {
   late double interest;
   double _value = 50.0;
   double loanPeriod = 36.0;
-   QuerySnapshot? recordsSnapshot;
-   DocumentSnapshot? loanSnapshot;
+  QuerySnapshot? recordsSnapshot;
+  DocumentSnapshot? loanSnapshot;
 
   TextEditingController loanAmountController = new TextEditingController();
   AuthService authService = AuthService();
@@ -50,9 +50,9 @@ class _LoansState extends State<Loans> {
   void initState() {
     getDetails();
     loanEligible = applyLoan(widget.total);
-    print(loanEligible);
+   // print(loanEligible);
     checkExistingLoan();
-    print(loanEligible["from"]);
+    //print(loanEligible["from"]);
     super.initState();
   }
 
@@ -126,16 +126,7 @@ class _LoansState extends State<Loans> {
     );
   }
 
-  var _currencies = [
-    "Food",
-    "Transport",
-    "Personal",
-    "Shopping",
-    "Medical",
-    "Rent",
-    "Movie",
-    "Salary"
-  ];
+
 
   calculateInterest() {
     if (formKey.currentState!.validate()) {
@@ -173,7 +164,7 @@ class _LoansState extends State<Loans> {
     }
   }
 
-   Widget recordList() {
+/*    Widget recordList() {
     if (recordsSnapshot != null && recordsSnapshot!.docs == null)
       return CircularProgressIndicator();
     return recordsSnapshot != null
@@ -186,9 +177,31 @@ class _LoansState extends State<Loans> {
                   shares: recordsSnapshot!.docs[index].get('shares'));
             })
         : Container();
+  } */
+  Widget recordList() {
+    return Container(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          return (snapshot.connectionState == ConnectionState.waiting)
+              ? Container()
+              : ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    var data = snapshot.data!.docs[index].data()
+                        as Map<String, dynamic>;
+                    return recordTile(
+                        crb: data['crb'],
+                        shares: data['shares']);
+                  },
+                );
+        },
+      ),
+    );
   }
 
-   Widget recordTile({String? crb, int? shares}) {
+  Widget recordTile({String? crb, int? shares}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -232,8 +245,6 @@ class _LoansState extends State<Loans> {
                   ),
                 ),
               ),
-
-           
             ],
           ),
         ),
@@ -241,8 +252,7 @@ class _LoansState extends State<Loans> {
     );
   }
 
-
-Widget loan1Status() {
+  Widget loan1Status() {
     // if (loanSnapshot == null) return CircularProgressIndicator();
     // return loanSnapshot.data.containsKey("id")
     //     ?
@@ -250,18 +260,19 @@ Widget loan1Status() {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.blue,
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(color: Colors.blue, spreadRadius: 3),
         ],
       ),
-      margin: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
       child: TextButton(
         style: ButtonStyle(
           foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
         ),
-        child: Text(
+        child: const Text(
           'check loan status',
-          ),
+          style: TextStyle(color: Colors.white),
+        ),
         //color: Colors.blueAccent,
         //textColor: Colors.white,
         onPressed: () async {
@@ -372,13 +383,13 @@ Widget loan1Status() {
               ),
               Expanded(
                 child: Center(
-                  child: Text(" Eligible  amount of loan from:  "),
+                  child: Text(" Eligible  amount of loan from: ${loanEligible["from"].toString()} "),
                 ),
               ),
               SizedBox(
                 height: 10.0,
               ),
-              Expanded(child: Center(child: Text("To: "))),
+              Expanded(child: Center(child: Text("To: ${loanEligible["to"].toString()}"))),
             ],
           ),
         ),
@@ -426,11 +437,11 @@ Widget loan1Status() {
               ],
             ),
             child: TextButton(
-              child:  const Text(
+              child: const Text(
                 'submit another loan',
                 style: TextStyle(color: Colors.white),
-                ),
-             /*  style: ButtonStyle(
+              ),
+              /*  style: ButtonStyle(
                   foregroundColor:
                       MaterialStateProperty.all(Colors.blueAccent)), */
               //  color: Colors.blueAccent,
@@ -500,7 +511,7 @@ Widget loan1Status() {
 
                   return Column(
                     children: <Widget>[
-                      //  recordList(),
+                       recordList(),
 
                       farmerEligibleLoan(),
                       SizedBox(
@@ -543,7 +554,7 @@ Widget loan1Status() {
                       SizedBox(
                         height: 20,
                       ),
-                       loan1Status(),
+                      loan1Status(),
                     ],
                   );
                 }),

@@ -17,6 +17,7 @@ import 'package:mukurewini/views/search.dart';
 import 'package:mukurewini/views/signin.dart';
 import 'package:mukurewini/views/users.dart';
 import 'package:mukurewini/widgets/widgets.dart';
+import 'package:mukurewini/views/AdminManager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,6 +33,39 @@ class _HomeScreenState extends State<HomeScreen> {
   User? user;
 
   AuthService authService = AuthService();
+  DatabaseService databaseService = DatabaseService();
+
+  checkRole(DocumentSnapshot snapshot) {
+    if (snapshot.get('admin') == true) {
+      return const ListTile(
+        title: Text("Go to Dairy"),
+      );
+    } else {
+      return const Text('You are not an admin');
+    }
+  }
+
+  checkIfAdmin() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    User? user = await _auth.currentUser;
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .snapshots();
+  }
+
+  initiateSearch() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    User? user = await _auth.currentUser;
+
+    databaseService.getUserName().then((val) {
+      setState(() {
+        userSnapshot = val;
+      });
+    });
+  }
 
   Widget userHome() {
     return userSnapshot != null
@@ -39,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: userNam(name: userSnapshot!.get('fullName')),
           )
         : Container(
-            child: Center(
+            child: const Center(
               child: CircularProgressIndicator(),
             ),
           );
@@ -52,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(color: Colors.green, spreadRadius: 3),
           ],
         ),
@@ -64,9 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    colorFilter: new ColorFilter.mode(
+                    colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.4), BlendMode.dstATop),
-                    image: new AssetImage(
+                    image: const AssetImage(
                       "assets/images/c1.jpg",
                     ),
                     fit: BoxFit.cover,
@@ -76,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Center(
                   child: Text(
                 'Welcome $name',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ))
             ],
           ),
@@ -87,8 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    super.initState();
     gettingUserData();
+    super.initState();
+    
   }
 
   gettingUserData() async {
@@ -106,12 +142,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int currentIndex = 0;
   final screens = [
-    HomeScreen(),
+    const HomeScreen(),
     ProfileScreen(
       email: '',
       userName: '',
     ),
-    ChatScreen(),
+    const ChatScreen(),
   ];
 
   @override
@@ -260,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-           // userHome(),
+             //userHome(),
             Container(
               padding: EdgeInsets.all(10),
               child: GridView.count(
