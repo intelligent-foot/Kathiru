@@ -12,9 +12,9 @@ import 'package:mukurewini/widgets/widgets.dart';
 import 'package:date_format/date_format.dart';
 
 class MilkAgent extends StatefulWidget {
-  String name;
-  String email;
-  String uid;
+  final String name;
+  final String email;
+  final String uid;
   MilkAgent(
       {Key? key, required this.email, required this.uid, required this.name});
 

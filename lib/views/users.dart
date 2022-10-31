@@ -101,6 +101,7 @@ class _FarmerState extends State<Farmer> {
   String? email;
   double total = 0.0;
   List<String> docIDs = [];
+  
 
   Future getDocId() async {
     await FirebaseFirestore.instance
@@ -167,6 +168,7 @@ class _FarmerState extends State<Farmer> {
         return ListView.builder(
           itemCount: docIDs.length,
           itemBuilder: (context, index) {
+            
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
@@ -175,7 +177,9 @@ class _FarmerState extends State<Farmer> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => MilkAgent(
-                          email: 'email', uid: 'uid', name: name)));
+                          email: recordsSnapshot?.docs[index].get('email'),
+                           uid: recordsSnapshot?.docs[index].get('uid'), 
+                           name: recordsSnapshot?.docs[index].get('fullName'))));
                 },
                 tileColor: Colors.blueGrey,
                 title: GetUserName(documentId: docIDs[index]),

@@ -44,6 +44,31 @@ class _RecordsState extends State<Records> {
   //List<String> docIDs = [];
 
   Widget recordList() {
+    return Container(
+      child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('users').snapshots(),
+          builder: (( BuildContext context,AsyncSnapshot<QuerySnapshot>  snapshot) {
+             if (!snapshot.hasData) return const Text('Loading...');
+            return (snapshot.connectionState == ConnectionState.waiting)
+                ? Container()
+                : ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                
+                  physics: const ScrollPhysics(),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: ((context, index) {
+                      var data = snapshot.data!.docs[index].data()
+                          as Map<String, dynamic>;
+                      return recordTile(
+                        email: data['email'],
+                        name: data['fullName'],
+                        farmerId: data['uid']
+                      );
+                    }));
+          })),
+    );
+    /* 
     /*  return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('users').snapshots(),
       builder: (context, snapshot) { */
@@ -58,19 +83,19 @@ class _RecordsState extends State<Records> {
                 email: data['email'],
                 farmerId: data['uid'],
                 name: data['fullName'],
-                kilograms: data['kilograms'],
+              //  kilograms: data['kilograms'],
                 date: data['date'],
                // log('data: $data');
               );
               
             },
           );
+
           
     //  },
    
     // );
-
-    
+ */
   }
 
   Future queryValues() async {
@@ -121,8 +146,8 @@ class _RecordsState extends State<Records> {
   }
 
   Widget _buildAboutText() {
-    return new RichText(
-      text: new TextSpan(
+    return RichText(
+      text: TextSpan(
         text:
             'Your milk production levels seems to have dropped by $difference litres. This is a significant margin and could be caused by various issues with your cows. If this is the case we recommend that you visit our veterinary page and get help .\n\n',
         style: const TextStyle(color: Colors.black87),
@@ -134,9 +159,9 @@ class _RecordsState extends State<Records> {
   }
 
   Widget _buildAboutDialog(BuildContext context) {
-    return new AlertDialog(
+    return AlertDialog(
       title: Text('Hello $name'),
-      content: new Column(
+      content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -161,8 +186,10 @@ class _RecordsState extends State<Records> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const HomeScreen()));
               },
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.green),
@@ -185,9 +212,9 @@ class _RecordsState extends State<Records> {
 
   Widget recordTile(
       {String? email,
-      String? date,
-      dynamic kilograms,
-      int? farmerId,
+     // String? date,
+      // dynamic kilograms,
+      String? farmerId,
       String? name}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -197,7 +224,7 @@ class _RecordsState extends State<Records> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(color: Colors.green, spreadRadius: 3),
           ],
         ),
@@ -236,22 +263,9 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                Center(
+                 Center(
                   child: Text(
-                    'Farmer Id: ',
-                    // style: mediumTextStyle()
-                    style: const TextStyle(
-                      fontSize: 17.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 12.0,
-                ),
-                Center(
-                  child: Text(
-                    '  Date and time sold:',
+                    'Farmer Id: $farmerId ',
                     // style: mediumTextStyle()
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -262,9 +276,22 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                Center(
+                const Center(
                   child: Text(
-                    'Email: ',
+                    '  Date and time sold:',
+                    // style: mediumTextStyle()
+                    style: TextStyle(
+                      fontSize: 17.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 12.0,
+                ),
+                 Center(
+                  child: Text(
+                    'Email: $email',
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -275,11 +302,11 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                Center(
+                const Center(
                   child: Text(
-                    'Amount of Milk sold: $kilograms litres',
+                    'Amount of Milk sold:  litres',
                     // style: mediumTextStyle(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17.0,
                       // fontFamily: 'Nunito',
                     ),
@@ -290,7 +317,7 @@ class _RecordsState extends State<Records> {
                 ),
                 Center(
                   child: Text(
-                    'Amount earned: ${kilograms * price} Kshs',
+                    'Amount earned: ${0 * price} Kshs',
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -360,8 +387,8 @@ class _RecordsState extends State<Records> {
                             ),
                           ),
                         ),
-                        
-                        // recordList(),
+
+                          recordList(),
                         const SizedBox(
                           height: 12.0,
                         ),

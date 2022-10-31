@@ -511,7 +511,7 @@ class _LoansState extends State<Loans> {
 
                   return Column(
                     children: <Widget>[
-                       recordList(),
+                       //recordList(),
 
                       farmerEligibleLoan(),
                       SizedBox(
