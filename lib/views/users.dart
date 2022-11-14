@@ -12,9 +12,8 @@ import 'package:mukurewini/views/profile_screen.dart';
 import 'package:mukurewini/widgets/widgets.dart';
 
 class Users extends StatefulWidget {
-  const Users({
-    super.key,
-  });
+  String userId;
+  Users({Key? key, required this.userId});
 
   @override
   State<Users> createState() => _UsersState();
@@ -23,7 +22,7 @@ class Users extends StatefulWidget {
 class _UsersState extends State<Users> {
   int currentIndex = 0;
   final screens = [
-    HomeScreen(),
+    HomeScreen(userId: '',),
     ProfileScreen(
       email: '',
       userName: '',
@@ -36,8 +35,8 @@ class _UsersState extends State<Users> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Farmers'),
-          bottom: TabBar(
+          title: const Text('Farmers'),
+          bottom: const TabBar(
             tabs: [
               Tab(
                 icon: Icon(Icons.people_outline),
@@ -50,7 +49,7 @@ class _UsersState extends State<Users> {
             ],
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [Farmer(), SearchFarmer()],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -60,7 +59,7 @@ class _UsersState extends State<Users> {
               currentIndex = index;
             });
           },
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Home',
@@ -101,7 +100,6 @@ class _FarmerState extends State<Farmer> {
   String? email;
   double total = 0.0;
   List<String> docIDs = [];
-  
 
   Future getDocId() async {
     await FirebaseFirestore.instance
@@ -133,7 +131,7 @@ class _FarmerState extends State<Farmer> {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+            context, MaterialPageRoute(builder: (context) => HomeScreen(userId: '',)));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -168,18 +166,18 @@ class _FarmerState extends State<Farmer> {
         return ListView.builder(
           itemCount: docIDs.length,
           itemBuilder: (context, index) {
-            
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
                 onTap: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MilkAgent(
-                          email: recordsSnapshot?.docs[index].get('email'),
-                           uid: recordsSnapshot?.docs[index].get('uid'), 
-                           name: recordsSnapshot?.docs[index].get('fullName'))));
+                 /*  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MilkAgent(
+                              email: email!,
+                              farmerId: ,
+                              name
+                                username!!))); */
                 },
                 tileColor: Colors.blueGrey,
                 title: GetUserName(documentId: docIDs[index]),
@@ -208,20 +206,30 @@ class _SearchFarmerState extends State<SearchFarmer> {
   CollectionReference _firebaseFirestore =
       FirebaseFirestore.instance.collection('users');
 
-  /*  Widget searchList() {
-    return searchSnapshot != null
-        ? ListView.builder(
-            itemCount: searchSnapshot!.docs.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return SearchTile(
-                  userName: searchSnapshot!.docs[index].data('fullName'),
-                  farmerId: searchSnapshot!.docs[index].data('uid'),
-                  email: searchSnapshot!.docs[index].data('email'));
-            },
-          )
-        : Container();
-  } */
+  Widget searchList() {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          return (snapshot.connectionState == ConnectionState)
+              ? Container()
+              : ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    var data = snapshot.data!.docs[index].data()
+                        as Map<String, dynamic>;
+                    return SearchTile(
+                        userName: data['fullName'],
+                        farmerId: data['uid'],
+                        email: data['email']);
+                  },
+                );
+        },
+      ),
+    );
+  }
 
   initiateSearch() {
     databaseService
@@ -239,27 +247,30 @@ class _SearchFarmerState extends State<SearchFarmer> {
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                userName!,
-                style: mediumTextStyle(),
-              ),
-              Text(
-                'farmerId: $farmerId',
-                style: mediumTextStyle(),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  userName!,
+                  style: mediumTextStyle(),
+                ),
+              (
+                  Text(
+                    'farmerId: $farmerId',
+                    style: mediumTextStyle(),
+                  )
+                ),
+              ],
+            ),
           ),
           Spacer(),
           GestureDetector(
             onTap: () {
-              Navigator.push(
+              nextScreenReplace(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => MilkAgent(email: 'email', name: 'name', uid: 'uid',),
-                  ));
+                  MilkAgent(
+                      email: email!, farmerId: farmerId!, name: userName));
             },
             child: Container(
               decoration: BoxDecoration(

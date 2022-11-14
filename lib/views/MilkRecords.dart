@@ -22,9 +22,9 @@ class Records extends StatefulWidget {
 
 class _RecordsState extends State<Records> {
   final formKey = GlobalKey<FormState>();
-  TextEditingController todayMilkController = new TextEditingController();
-  TextEditingController previousMilkController = new TextEditingController();
-  TextEditingController cumulativeMilkController = new TextEditingController();
+  TextEditingController todayMilkController = TextEditingController();
+  TextEditingController previousMilkController = TextEditingController();
+  TextEditingController cumulativeMilkController = TextEditingController();
   QuerySnapshot? recordsSnapshot;
   DocumentSnapshot? userSnapshot;
   User? username;
@@ -37,88 +37,97 @@ class _RecordsState extends State<Records> {
   double price = 15.0;
   double? earnedAmount;
   int? farmerId;
-
+// ignore: unused_element
   FirebaseUser? _firebaseUser(User user) {
+    // ignore: unnecessary_null_comparison
     return user != null ? FirebaseUser(userId: user.uid) : null;
   }
   //List<String> docIDs = [];
 
+  final currentUser = FirebaseAuth.instance;
   Widget recordList() {
     return Container(
       child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').snapshots(),
-          builder: (( BuildContext context,AsyncSnapshot<QuerySnapshot>  snapshot) {
-             if (!snapshot.hasData) return const Text('Loading...');
+          stream: FirebaseFirestore.instance
+              .collection('farmers')
+              .where("email", isEqualTo: currentUser.currentUser!.email)
+              .snapshots(),
+          builder:
+              ((BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData) return const Text('Loading...');
             return (snapshot.connectionState == ConnectionState.waiting)
                 ? Container()
                 : ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                
-                  physics: const ScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    physics: const ScrollPhysics(),
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: ((context, index) {
                       var data = snapshot.data!.docs[index].data()
                           as Map<String, dynamic>;
                       return recordTile(
-                        email: data['email'],
-                        name: data['fullName'],
-                        farmerId: data['uid']
-                      );
+                          email: data['email'],
+                          name: data['name'],
+                          farmerId: data['farmerId'],
+                          date: data['date'],
+                          kilograms: ['kilograms']);
                     }));
           })),
     );
-    /* 
-    /*  return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('users').snapshots(),
-      builder: (context, snapshot) { */
-    return recordsSnapshot != null
-        ? Container()
-        : ListView.builder(
-            itemCount: recordsSnapshot!.docs.length,
-            itemBuilder: (context, index) {
-              var data =
-                  recordsSnapshot!.docs[index].data() as Map<String, dynamic>;
-              return recordTile(
-                email: data['email'],
-                farmerId: data['uid'],
-                name: data['fullName'],
-              //  kilograms: data['kilograms'],
-                date: data['date'],
-               // log('data: $data');
-              );
-              
-            },
-          );
-
-          
-    //  },
-   
-    // );
- */
   }
 
-  Future queryValues() async {
+  /* Widget recordList() {
+    return recordsSnapshot != null
+        ? ListView.builder(
+            itemCount: recordsSnapshot!.docs.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return recordTile(
+                  email: recordsSnapshot!.docs[index].data()!["email"],
+                  kilograms: recordsSnapshot!.docs[index]["kilograms"],
+                  date: recordsSnapshot!.docs[index]["date"],
+                  farmerId: recordsSnapshot!.docs[index]["farmerId"],
+                  name: recordsSnapshot!.docs[index]["name"]);
+            })
+        : Container();
+  } */
+
+   Future queryValues() async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
-    User user = await _auth.currentUser!;
-    FirebaseFirestore.instance
-        .collection('users')
+    User user = _auth.currentUser!;
+
+    await FirebaseFirestore.instance
+        .collection('farmers')
+       // .doc(user.uid)
+      //  .doc(FirebaseAuth.instance.currentUser!.uid)
+      //  .collection('farmers')
+       // .snapshots()
+       // .snapshots()
         .where("email", isEqualTo: user.email)
         .get()
-        .then((val) {
-      double tempTotal =
-          val.docs.fold(0, (tot, doc) => tot + doc.get('kilograms'));
-      setState(() {
+        .then((snapshot) {
+          double tempTotal = snapshot.docs.fold(
+            0, (prev, element) => prev + element['kilograms']);
+           FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .update({
+            "cummulativeRecords": total
+            });
+          
+          setState(() {
         total = tempTotal;
         earnedAmount = total * price;
       });
       debugPrint(total.toString());
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.uid)
-          .update({"cummulativeRecords": total});
-    });
-  }
+
+        });
+         
+      
+}
+ 
+
+ 
 
   recommendVet() {
     if (difference! >= 5) {
@@ -134,13 +143,14 @@ class _RecordsState extends State<Records> {
     DatabaseService.getFarmerRecordsByEmail().then((val) {
       setState(() {
         recordsSnapshot = val;
-        firstAmount = recordsSnapshot!.docs[0].get('kilograms');
-        secondAmount = recordsSnapshot!.docs[1].get('kilograms');
+       // print('$recordsSnapshot');
+        firstAmount = recordsSnapshot!.docs[0]['kilograms'];
+        secondAmount = recordsSnapshot!.docs[1]['kilograms'];
 
         difference = (secondAmount! - firstAmount!);
-        name = recordsSnapshot!.docs[1].get('fullName');
-        farmerId = recordsSnapshot!.docs[0].get('uid');
-        recommendVet();
+        name = recordsSnapshot!.docs[1]['fullName'];
+        email = recordsSnapshot!.docs[0]['email'];
+        recommendVet(); 
       });
     });
   }
@@ -189,7 +199,9 @@ class _RecordsState extends State<Records> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const HomeScreen()));
+                        builder: (context) => HomeScreen(
+                              userId: '',
+                            )));
               },
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.green),
@@ -212,8 +224,8 @@ class _RecordsState extends State<Records> {
 
   Widget recordTile(
       {String? email,
-     // String? date,
-      // dynamic kilograms,
+      String? date,
+      dynamic kilograms,
       String? farmerId,
       String? name}) {
     return Padding(
@@ -263,9 +275,9 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                 Center(
+                Center(
                   child: Text(
-                    'Farmer Id: $farmerId ',
+                    'Farmer Id: $farmerId  ',
                     // style: mediumTextStyle()
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -276,9 +288,9 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    '  Date and time sold:',
+                    '  Date and time sold: \n$date',
                     // style: mediumTextStyle()
                     style: TextStyle(
                       fontSize: 17.0,
@@ -289,7 +301,7 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                 Center(
+                Center(
                   child: Text(
                     'Email: $email',
                     // style: mediumTextStyle(),
@@ -302,9 +314,9 @@ class _RecordsState extends State<Records> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    'Amount of Milk sold:  litres',
+                    'Amount of Milk sold: $kilograms litres',
                     // style: mediumTextStyle(),
                     style: TextStyle(
                       fontSize: 17.0,
@@ -317,7 +329,7 @@ class _RecordsState extends State<Records> {
                 ),
                 Center(
                   child: Text(
-                    'Amount earned: ${0 * price} Kshs',
+                    'Amount earned: ${total * price} Kshs',
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -344,7 +356,7 @@ class _RecordsState extends State<Records> {
           alignment: Alignment.topCenter,
           child: StreamBuilder(
               stream:
-                  FirebaseFirestore.instance.collection("users").snapshots(),
+                  FirebaseFirestore.instance.collection("farmers").snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return Center(
@@ -387,8 +399,7 @@ class _RecordsState extends State<Records> {
                             ),
                           ),
                         ),
-
-                          recordList(),
+                        recordList(),
                         const SizedBox(
                           height: 12.0,
                         ),

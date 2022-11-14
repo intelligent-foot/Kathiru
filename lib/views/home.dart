@@ -14,13 +14,15 @@ import 'package:mukurewini/views/manager.dart';
 import 'package:mukurewini/views/milk.dart';
 import 'package:mukurewini/views/profile_screen.dart';
 import 'package:mukurewini/views/search.dart';
+import 'package:mukurewini/views/showVet.dart';
 import 'package:mukurewini/views/signin.dart';
 import 'package:mukurewini/views/users.dart';
 import 'package:mukurewini/widgets/widgets.dart';
 import 'package:mukurewini/views/AdminManager.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String userId;
+  HomeScreen({required this.userId});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,12 +33,21 @@ class _HomeScreenState extends State<HomeScreen> {
   String userName = "";
   DocumentSnapshot? userSnapshot;
   User? user;
+  String myUsername = '';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   AuthService authService = AuthService();
   DatabaseService databaseService = DatabaseService();
+  String? userid;
+  void _getUser() async {
+    User user = await FirebaseAuth.instance.currentUser!;
+    userid = user.uid;
+  }
 
   checkRole(DocumentSnapshot snapshot) {
-    if (snapshot.get('admin') == true) {
+    if (snapshot['admin'] == true) {
+      print('$snapshot');
       return const ListTile(
         title: Text("Go to Dairy"),
       );
@@ -63,14 +74,30 @@ class _HomeScreenState extends State<HomeScreen> {
     databaseService.getUserName().then((val) {
       setState(() {
         userSnapshot = val;
+        print('$userSnapshot');
       });
     });
   }
 
+  void _getdata() {
+    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+    User? user = _firebaseAuth.currentUser;
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .snapshots()
+        .listen((userData) {
+      setState() {
+        myUsername = userData.data()!['fullName'];
+      }
+    });
+  }
+
   Widget userHome() {
-    return userSnapshot != null
+    return myUsername != null
         ? Container(
-            child: userNam(name: userSnapshot!.get('fullName')),
+            child: userNam(name: myUsername),
           )
         : Container(
             child: const Center(
@@ -124,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     gettingUserData();
     super.initState();
-    
   }
 
   gettingUserData() async {
@@ -142,7 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int currentIndex = 0;
   final screens = [
-    const HomeScreen(),
+    HomeScreen(
+      userId: '',
+    ),
     ProfileScreen(
       email: '',
       userName: '',
@@ -167,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
             currentIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -292,102 +320,108 @@ class _HomeScreenState extends State<HomeScreen> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-             //userHome(),
-            Container(
-              padding: EdgeInsets.all(10),
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Users()));
-                    },
-                    child: Card(
-                      elevation: 10,
-                      child: Center(
-                        child: Text(
-                          'Dairy',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              userHome(),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Users(
+                                      userId: '',
+                                    )));
+                      },
+                      child: const Card(
+                        elevation: 10,
+                        child: Center(
+                          child: Text(
+                            'Dairy',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MilkAgent(
-                                    email: '',
-                                    name: '',
-                                    uid: '',
-                                  )));
-                    },
-                    child: Card(
-                      elevation: 10,
-                      child: Center(
-                        child: Text(
-                          'Manager',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MilkAgent(
+                                      email: '',
+                                      name: '',
+                                      farmerId: '',
+                                    )));
+                      },
+                      child: const Card(
+                        elevation: 10,
+                        child: Center(
+                          child: Text(
+                            'Manager',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Records(
-                                    userId: '',
-                                  )));
-                    },
-                    child: Card(
-                      elevation: 10,
-                      child: Center(
-                        child: Text(
-                          'Dairy Records',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Records(
+                                      userId: '',
+                                    )));
+                      },
+                      child: const Card(
+                        elevation: 10,
+                        child: Center(
+                          child: Text(
+                            'Dairy Records',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterVet(
-                                    name: '',
-                                  )));
-                    },
-                    child: Card(
-                      elevation: 10,
-                      child: Center(
-                        child: Text(
-                          'Veterinary',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterVet(
+                                      name: '',
+                                    )));
+                      },
+                      child: const Card(
+                        elevation: 10,
+                        child: Center(
+                          child: Text(
+                            'Veterinary',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 40,
-            ),
-          ],
+              const SizedBox(
+                height: 40,
+              ),
+            ],
+          ),
         ),
       ),
     );

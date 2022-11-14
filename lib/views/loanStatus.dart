@@ -29,6 +29,8 @@ class _loanStatusState extends State<loanStatus> {
   String name = 'joseph';
   String? email;
   double total = 0.0;
+  String t = '';
+  late double amountPaid;
 
   /* Widget recordList() {
     return  
@@ -55,12 +57,15 @@ class _loanStatusState extends State<loanStatus> {
           );
   }
  */
-
+  final currentUser = FirebaseAuth.instance;
   Widget recordList() {
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('loan').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('loan')
+            .where("email", isEqualTo: currentUser.currentUser!.email)
+            .snapshots(),
         builder: (context, snapshot) {
           return (snapshot.connectionState == ConnectionState)
               ? Container()
@@ -73,10 +78,8 @@ class _loanStatusState extends State<loanStatus> {
                     return recordTile(
                       loan: data['loan'],
                       loanStatus: data['loan status'],
-                      repayableLoan:
-                          data['payableLoan'],
-                      repayment:
-                          data['repayment period'],
+                      repayableLoan: data['payableLoan'],
+                      repayment: data['repayment period'],
                     );
                   },
                 );
@@ -95,7 +98,7 @@ class _loanStatusState extends State<loanStatus> {
   }
 
   Widget recordTile(
-      {int? loan, String? loanStatus, int? repayment, int? repayableLoan}) {
+      {String? loan, String? loanStatus, int? repayment, int? repayableLoan}) {
     return Container(
       height: 250,
       decoration: BoxDecoration(
@@ -212,6 +215,20 @@ class _loanStatusState extends State<loanStatus> {
     );
   }
 
+  /*  Widget checkBalance() {
+    return TextButton(
+      child: Text(
+        'Check Balance',
+      ),
+      onPressed: () {
+        setState(() {
+          balance = 
+        });
+        balance = selected - int.tryParse(payLoanController.text);
+      },
+    );
+  } */
+
   @override
   void initState() {
     initiateSearch();
@@ -260,106 +277,128 @@ class _loanStatusState extends State<loanStatus> {
         child: Form(
           key: formKey,
           child: Container(
-             height: MediaQuery.of(context).size.height - 50,
+            height: MediaQuery.of(context).size.height - 50,
             alignment: Alignment.topCenter,
             child: StreamBuilder(
                 stream:
                     FirebaseFirestore.instance.collection("loan").snapshots(),
                 builder: (context, snapshot) {
                   return Container(
-                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          recordList(),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          // ignore: unnecessary_null_comparison
-                          snapshot != null
-                              ? TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  validator: (val) {
-                                    return val!.isEmpty
-                                        ? "Value cannot be empty"
-                                        : null;
-                                  },
-                                  controller: payLoanController,
-                                  style: simpleTextStyle(),
-                                  decoration: const InputDecoration(
-                                      hintText: 'Enter amount to pay',
-                                      fillColor: Colors.white54,
-                                      filled: true,
-                                      enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.white, width: 2.0)),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.green,
-                                              width: 2.0))),
-                                )
-                              : const Text("You have no loans"),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          // ignore: unnecessary_null_comparison
-                          snapshot != null /* &&
-                                  snapshot!.docs.isNotEmpty */
-                              ? Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.black,
-                                    boxShadow: const [
-                                      BoxShadow(
-                                          color: Colors.green, spreadRadius: 3),
-                                    ],
-                                  ),
-                                  child: TextButton(
-                                    // elevation: 1,
-                                    onPressed: () {
-                                      if (formKey.currentState!.validate()) {
-                                        startTransaction(
-                                            amount: double.parse(
-                                                payLoanController.text),
-                                            phone: "254713659502");
-                                      }
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: SingleChildScrollView(
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            recordList(),
+                            const SizedBox(
+                              height: 50,
+                            ),
+                            // ignore: unnecessary_null_comparison
+                            snapshot != null
+                                ? TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    validator: (val) {
+                                      return val!.isEmpty
+                                          ? "Value cannot be empty"
+                                          : null;
                                     },
-                                    child: const Text("Pay Loan"),
-                                  ),
-                                )
-                              : const Text("You have no loans"),
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
-                              boxShadow: const [
-                                BoxShadow(color: Colors.green, spreadRadius: 3),
-                              ],
+                                    controller: payLoanController,
+                                    onChanged: (value) {
+                                      t = value;
+                                      print('$t');
+                                    },
+                                    style: simpleTextStyle(),
+                                    decoration: const InputDecoration(
+                                        hintText: 'Enter amount to pay',
+                                        fillColor: Colors.white54,
+                                        filled: true,
+                                        enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.white,
+                                                width: 2.0)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.green,
+                                                width: 2.0))),
+                                  )
+                                : const Text("You have no loans"),
+                            const SizedBox(
+                              height: 50,
                             ),
-                            child: TextButton(
-                              //elevation: 1,
-                              onPressed: () {
-                                /* avigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            )); */
-                              },
-                              child: const Text("Other Loans"),
+                            // ignore: unnecessary_null_comparison
+                            snapshot !=
+                                    null /* &&
+                                    snapshot!.docs.isNotEmpty */
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.black,
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            color: Colors.green,
+                                            spreadRadius: 3),
+                                      ],
+                                    ),
+                                    child: TextButton(
+                                      // elevation: 1,
+                                      onPressed: () {
+                                        
+                                        if (formKey.currentState!.validate()) {
+                                          startTransaction(
+                                              amount: double.parse(
+                                                  payLoanController.text),
+                                              phone: "254713659502");
+                                        }
+                                      },
+                                      child: const Text("Pay Loan"),
+                                    ),
+                                  )
+                                : const Text("You have no loans"),
+                            const SizedBox(
+                              height: 40,
                             ),
-                          )
-                        ]),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                                boxShadow: const [
+                                  BoxShadow(
+                                      color: Colors.green, spreadRadius: 3),
+                                ],
+                              ),
+                              child: TextButton(
+                                //elevation: 1,
+                                onPressed: () {
+                                  /* avigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              )); */
+                                },
+                                child: const Text("Other Loans"),
+                              ),
+                            )
+                          ]),
+                    ),
                   );
                 }),
           ),
         ),
       ),
     );
+  }
+
+  checkPaid() {
+    amountPaid = double.parse(t);
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    User? user = _auth.currentUser;
+    FirebaseFirestore.instance
+        .collection('loan')
+        .doc(user!.uid)
+        .update({'paid': amountPaid});
   }
 }

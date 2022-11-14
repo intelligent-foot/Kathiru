@@ -53,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ListTile(
               onTap: () {
-                nextScreen(context, const HomeScreen());
+                nextScreen(context,  HomeScreen(userId: '',));
               },
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -72,6 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       return AlertDialog(
                         title: Text('Logout'),
                         content: Text('Are you sure you want to logout ? '),
+                        
                         actions: [
                           IconButton(
                               onPressed: () {

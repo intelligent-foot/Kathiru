@@ -22,12 +22,12 @@ static Future<bool> saveUserNameSF(String userName) async {
     SharedPreferences sf = await SharedPreferences.getInstance();
     return await sf.setString(userNameKey, userName);
   }
-  static Future<bool> saveUserEmailSF(String userName) async {
+  static Future<bool> saveUserEmailSF(String userEmail) async {
     SharedPreferences sf = await SharedPreferences.getInstance();
-    return await sf.setString(userEmailKey, userEmailKey);
+    return await sf.setString(userEmailKey, userEmail);
   }
 
-//GETTING data from SF
+//GETTING data from SF 
  static Future<String?> getUserEmailFromSF() async {
     SharedPreferences sf = await SharedPreferences.getInstance();
     return sf.getString(userEmailKey);

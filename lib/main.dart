@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: Colors.white,
         primarySwatch: Colors.blue,
       ),
-      home: _isSignedIn ? const HomeScreen() : const SignInScreen(),
+      home: _isSignedIn ?  HomeScreen(userId: '',) : const SignInScreen(),
     );
   }
 }

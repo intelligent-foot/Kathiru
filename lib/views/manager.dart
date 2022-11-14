@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mukurewini/model/user.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
+import 'package:mukurewini/views/home.dart';
+import 'package:mukurewini/widgets/widgets.dart';
 
 class manager extends StatefulWidget {
   @override
@@ -15,6 +17,7 @@ class _managerState extends State<manager> {
   TextEditingController todayMilkController = new TextEditingController();
   TextEditingController previousMilkController = new TextEditingController();
   TextEditingController cumulativeMilkController = new TextEditingController();
+   TextEditingController payLoanController = TextEditingController();
   DatabaseService databaseService = new DatabaseService();
   AuthService authService = new AuthService();
 
@@ -26,9 +29,10 @@ class _managerState extends State<manager> {
 
   String? ids;
 
-   FirebaseUser? _firebaseUser(User user) {
+  FirebaseUser? _firebaseUser(User user) {
     return user != null ? FirebaseUser(userId: user.uid) : null;
   }
+
   Widget recordList() {
     return recordsSnapshot != null
         ? ListView.builder(
@@ -39,6 +43,8 @@ class _managerState extends State<manager> {
                 email: recordsSnapshot!.docs[index].get('email'),
                 loan: recordsSnapshot!.docs[index].get('loan'),
                 id: recordsSnapshot!.docs[index].get('id'),
+                bal: recordsSnapshot!.docs[index].get('bal'),
+                paid: recordsSnapshot!.docs[index].get('paid')
               );
             })
         : Container();
@@ -53,43 +59,46 @@ class _managerState extends State<manager> {
               return Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Container(
-                  height: 60.0,
-                  child:  recordsSnapshot!.docs[index].get('loan status') ==
+                  height: 100.0,
+                  child: recordsSnapshot!.docs[index].get('loan status') ==
                           "approved"
                       ? Icon(Icons.check)
-                      :  TextButton(
-                         style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.blueAccent)
-                    ),
+                      : TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.blueAccent)),
                           child: Text('approve'),
-                         // color: Colors.blueAccent,
-                         // textColor: Colors.white,
+                          // color: Colors.blueAccent,
+                          // textColor: Colors.white,
                           onPressed: () async {
                             final FirebaseAuth _auth = FirebaseAuth.instance;
-                            final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+                            final FirebaseFirestore _firestore =
+                                FirebaseFirestore.instance;
                             User user = await _auth.currentUser!;
                             FirebaseFirestore.instance
                                 .collection("loan")
-                                .doc(
-                                    recordsSnapshot!.docs[index].get('id'))
+                                .doc(recordsSnapshot!.docs[index].get('id'))
                                 .update(
                               {
                                 "loan status": "approved",
                               },
                             );
                             final snackBar = SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text('loan approved successfully'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                duration: Duration(seconds: 3),
+                                content: Text('loan approved successfully'));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
                           },
-                          
                         ),
                 ),
               );
             })
         : Container();
-        
   }
+
+
+
+
 
   Widget loanList2() {
     return recordsSnapshot != null
@@ -100,7 +109,7 @@ class _managerState extends State<manager> {
               return Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Container(
-                  height: 60.0,
+                  height: 100.0,
                   child: recordsSnapshot!.docs[index].get('loan status') ==
                           "denied"
                       ? Icon(
@@ -108,27 +117,28 @@ class _managerState extends State<manager> {
                           color: Colors.red,
                         )
                       : TextButton(
-                         style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.redAccent)
-                    ),
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.redAccent)),
                           child: Text('Deny'),
-                         // color: Colors.redAccent,
-                         // textColor: Colors.white,
-                          onPressed: ()  async {
+                          // color: Colors.redAccent,
+                          // textColor: Colors.white,
+                          onPressed: () async {
                             final FirebaseAuth _auth = FirebaseAuth.instance;
-                            final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+                            final FirebaseFirestore _firestore =
+                                FirebaseFirestore.instance;
                             User user = await _auth.currentUser!;
                             FirebaseFirestore.instance
                                 .collection("loan")
-                                .doc(
-                                    recordsSnapshot!.docs[index].get('id'))
+                                .doc(recordsSnapshot!.docs[index].get('id'))
                                 .update({
                               "status": "denied",
-                            });  
+                            });
                             final snackBar = SnackBar(
-          duration: Duration(seconds: 3),
-          content: Text('loan denied'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                duration: Duration(seconds: 3),
+                                content: Text('loan denied'));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
                           },
                         ),
                 ),
@@ -146,18 +156,21 @@ class _managerState extends State<manager> {
               return Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Container(
-                  height: 60.0,
+                  height: 100.0,
                   child: TextButton(
                     style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.green)
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.green)),
+
+                    child: Text(
+                      'Clear',
                     ),
 
-                    child: Text('Clear', ),
-                    
-                 //   textColor: Colors.white,
+                    //   textColor: Colors.white,
                     onPressed: () async {
                       final FirebaseAuth _auth = FirebaseAuth.instance;
-                      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+                      final FirebaseFirestore _firestore =
+                          FirebaseFirestore.instance;
                       User user = await _auth.currentUser!;
                       FirebaseFirestore.instance
                           .collection("loan")
@@ -165,13 +178,13 @@ class _managerState extends State<manager> {
                           .delete();
                     },
                   ),
-                  
                 ),
               );
-              
             })
         : Container();
   }
+
+  
 
   initiateSearch() {
     databaseService.getAllUserLoans().then((val) {
@@ -181,15 +194,15 @@ class _managerState extends State<manager> {
     });
   }
 
-  Widget recordTile({String? email, int? loan, dynamic id}) {
+  Widget recordTile({String? email, String? loan, dynamic id, int? paid, int? bal}) {
     return Column(
       children: [
         Container(
-          height: 70.0,
+          height: 100.0,
           child: Card(
             child: Center(
               child: Text(
-                '$email\nFarmer Id: $id\nLoan requested: Ksh $loan',
+                '$email\nFarmer Id: $id\nLoan requested: Ksh $loan\nAmount paid: $paid\n Balance: $bal',
 
                 // style: mediumTextStyle(),
                 style: TextStyle(
@@ -204,7 +217,6 @@ class _managerState extends State<manager> {
   }
 
   Widget recordTile2({String? email, int? loan, dynamic id}) {
-    
     return ListView(
       scrollDirection: Axis.horizontal,
       children: [
@@ -218,7 +230,6 @@ class _managerState extends State<manager> {
     );
   }
 
-
   @override
   void initState() {
     initiateSearch();
@@ -229,6 +240,11 @@ class _managerState extends State<manager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: (() {
+              nextScreen(context,  HomeScreen(userId: '',));
+            })),
         title: Text('Farmers Loans'),
       ),
       drawer: Drawer(
@@ -251,7 +267,6 @@ class _managerState extends State<manager> {
           child: StreamBuilder(
               stream: FirebaseFirestore.instance.collection("loan").snapshots(),
               builder: (context, snapshot) {
-                
                 return ListView(
                   scrollDirection: Axis.horizontal,
                   children: [

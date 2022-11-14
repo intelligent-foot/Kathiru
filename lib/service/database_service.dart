@@ -2,11 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_format/date_format.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 class DatabaseService {
   final String? uid;
-  
-  int ?randomNumber;
+
+  int? randomNumber;
+  /* Random random = Random();
+  randomNumber = random.nextInt(5000)+100; */
 
   DatabaseService({this.uid});
 
@@ -26,21 +29,21 @@ class DatabaseService {
     var date = DateTime.now().toString();
     var dateparse = DateTime.parse(date);
     var formattedDate = "${dateparse.day}-${dateparse.month}-${dateparse.year}";
-   // int randomNumber;
+    // int randomNumber;
     return await userCollection.doc(uid).set({
       "fullName": fullName,
       "email": email,
       "uid": uid,
       "admin": false,
-      
+
       'joinedAt': formattedDate,
       'createdAt': Timestamp.now(),
       "shares": 0,
       "crb": "cleared",
       "status": "online",
-      "last_seen": new DateFormat.yMd().add_jm().format(DateTime.now()),
+      "last_seen": DateFormat.yMd().add_jm().format(DateTime.now()),
       "agent": "false",
-     "farmerId": randomNumber,
+      "farmerId": randomNumber,
       "cumulative Records": 0,
 
       // "Kilograms": Kilograms,
@@ -78,7 +81,7 @@ class DatabaseService {
   getFarmerId(int id) async {
     return await FirebaseFirestore.instance
         .collection('users')
-        .where("email", isEqualTo: id)
+        .where("uid", isEqualTo: id)
         .get();
   }
 
@@ -108,11 +111,11 @@ class DatabaseService {
   static Future getFarmerRecordsByEmail() async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    User user = await _auth.currentUser!;
+    User user =  _auth.currentUser!;
     return await FirebaseFirestore.instance
         .collection("users")
         .where("email", isEqualTo: user.email)
-        //  .orderBy("date", descending: true)
+         .orderBy("date", descending: true)
         .get();
   }
 
@@ -121,7 +124,7 @@ class DatabaseService {
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     User user = await _auth.currentUser!;
     FirebaseFirestore.instance
-        .collection('users')
+        .collection('farmers')
         .doc(user.uid)
         .set(userMap)
         .catchError((e) {

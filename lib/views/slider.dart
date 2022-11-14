@@ -23,24 +23,24 @@ class _SliderExampleState extends State<SliderExample> {
               mainAxisSize: MainAxisSize.max,
               children: [
        
-            new Expanded(
+             Expanded(
          
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: Colors.blue[700],
                   inactiveTrackColor: Colors.blue[100],
-                  trackShape: RoundedRectSliderTrackShape(),
+                  trackShape: const RoundedRectSliderTrackShape(),
                   trackHeight: 4.0,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12.0),
                   thumbColor: Colors.blueAccent,
                   overlayColor: Colors.blue.withAlpha(32),
-                  overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
-                  tickMarkShape: RoundSliderTickMarkShape(),
+                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 28.0),
+                  tickMarkShape: const RoundSliderTickMarkShape(),
                   activeTickMarkColor: Colors.blue[700],
                   inactiveTickMarkColor: Colors.blue[100],
-                  valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+                  valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
                   valueIndicatorColor: Colors.blueAccent,
-                  valueIndicatorTextStyle: TextStyle(
+                  valueIndicatorTextStyle: const TextStyle(
                     color: Colors.white,
                   ),
                 ),

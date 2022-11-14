@@ -43,7 +43,7 @@ class _AdminState extends State<Admin> {
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Text('Something went wrong.');
             // return Container();
           } else if (snapshot.hasData) {
             return checkRole(snapshot.data!);
@@ -65,7 +65,7 @@ class _AdminState extends State<Admin> {
         child: CircularProgressIndicator(),
       );
     }
-    if (snapshot.get('admin') == true) {
+    if (snapshot['admin'] == true) {
       return adminPage(snapshot);
     } else {
       return userPage(snapshot);
@@ -81,7 +81,7 @@ class _AdminState extends State<Admin> {
       //color: Colors.blue,
       onPressed: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Users()));
+            context, MaterialPageRoute(builder: (context) =>  Users(userId: '',)));
       },
     ));
   }

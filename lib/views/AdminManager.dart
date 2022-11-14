@@ -46,7 +46,7 @@ class _AdminState extends State<AdminManager> {
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
             // return Container();
-          } else if (snapshot.hasData) {
+          } if (snapshot.hasData) {
             return checkRole(snapshot.data!);
             // snapshot.hasData ? checkRole(snapshot.data) :Container();
             // return Text(snapshot.data['email']);
@@ -59,13 +59,14 @@ class _AdminState extends State<AdminManager> {
   }
 
   Center checkRole(DocumentSnapshot snapshot) {
+    var data = snapshot.data as Map;
     // ignore: unnecessary_null_comparison
     if (snapshot.data == null) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
-    if (snapshot.get('admin') == true) {
+    if (data['admin'] == true) {
       return adminPage(snapshot);
     } else {
       return userPage(snapshot);
@@ -88,6 +89,6 @@ class _AdminState extends State<AdminManager> {
   }
 
   Center userPage(DocumentSnapshot snapshot) {
-    return Center(child: Text("You are not a manager"));
+    return const Center(child: Text("You are not a manager"));
   }
 }

@@ -8,6 +8,7 @@ import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
 import 'package:mukurewini/views/Admin.dart';
+import 'package:mukurewini/views/AdminManager.dart';
 
 import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/views/signup.dart';
@@ -182,6 +183,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   login() async {
+ 
     if (formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -199,7 +201,7 @@ class _SignInScreenState extends State<SignInScreen> {
           await HelperFunctions.saveUserEmailSF(email);
           await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
 
-          nextScreenReplace(context, const HomeScreen());
+          nextScreenReplace(context,  HomeScreen(userId: '',));
         } else {
           showSnackbar(context, Colors.red, value);
           setState(() {

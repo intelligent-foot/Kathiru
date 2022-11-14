@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_format/date_format.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,14 +36,19 @@ class _LoansState extends State<Loans> {
 
   late double period;
   late double payableLoan;
+  late double paid;
+  late double bal;
+  String p = '';
   late int rate;
   late double interest;
   double _value = 50.0;
-  double loanPeriod = 36.0;
+  double loanPeriod = 24.0;
   QuerySnapshot? recordsSnapshot;
   DocumentSnapshot? loanSnapshot;
 
-  TextEditingController loanAmountController = new TextEditingController();
+  TextEditingController loanAmountController = TextEditingController();
+  TextEditingController loanAppController = TextEditingController();
+  TextEditingController payLoanController = TextEditingController();
   AuthService authService = AuthService();
   DatabaseService databaseService = DatabaseService();
 
@@ -50,7 +57,7 @@ class _LoansState extends State<Loans> {
   void initState() {
     getDetails();
     loanEligible = applyLoan(widget.total);
-   // print(loanEligible);
+    // print(loanEligible);
     checkExistingLoan();
     //print(loanEligible["from"]);
     super.initState();
@@ -78,28 +85,54 @@ class _LoansState extends State<Loans> {
     var constraints = {};
 
     if (widget.total >= 500) {
-      constraints = {"from": 3000, "to": 15000};
+      constraints = {"from": 25000, "to": 30000};
     } else if (widget.total >= 200) {
-      constraints = {"from": 1000, "to": 5000};
+      constraints = {"from": 15000, "to": 20000};
     } else if (widget.total >= 1000) {
-      constraints = {"from": 3000, "to": 30000};
+      constraints = {"from": 35000, "to": 40000};
     } else if (widget.total >= 1500) {
-      constraints = {"from": 3000, "to": 45000};
+      constraints = {"from": 45000, "to": 50000};
     } else if (widget.total < 200) {
-      constraints = {"from": 500, "to": 1000};
+      constraints = {"from": 5000, "to": 10000};
     } else {
       return null;
     }
     return constraints;
   }
 
-  Widget displayBoard() {
+  Widget loanBoard() {
+    return TextFormField(
+      keyboardType: TextInputType.number,
+      validator: (val) {
+           if (double.tryParse(val!)! > 10000) {
+              return "Value is cannot be more than 10000";
+            }
+        
+           if (val.isEmpty) {
+             return "Value cannot be empty";
+           }
+        
+      },
+      controller: loanAppController,
+      onChanged: (value) {
+        p = value;
+      },
+      style: TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+        hintText: 'Enter amount of loan',
+        fillColor: Colors.white54,
+        filled: true,
+      ),
+    );
+  }
+
+  /* Widget displayBoard() {
     List loan = [
       for (var i = loanEligible['from']; i < loanEligible['to'] + 500; i += 500)
         i
-    ];
+    ]; */
 
-    List<DropdownMenuItem> menuItemList = loan
+  /* List<DropdownMenuItem> menuItemList = loan
         .map((val) => DropdownMenuItem(value: val, child: Text(val.toString())))
         .toList();
     return Padding(
@@ -124,16 +157,19 @@ class _LoansState extends State<Loans> {
         ),
       ),
     );
-  }
-
-
+  } */
 
   calculateInterest() {
     if (formKey.currentState!.validate()) {
-      payableLoan = (selected! + (selected! * 0.4 * loanPeriod / 36));
+      payableLoan = (double.parse(p) * 0.4 * loanPeriod / 24);
+
       print("loan period is ${loanPeriod}");
       print(payableLoan);
     }
+  }
+
+  calculatBal (){
+     if (formKey.currentState!.validate()){}
   }
 
   submitAnotherLoan() async {
@@ -151,7 +187,7 @@ class _LoansState extends State<Loans> {
           'name': widget.name,
           'farmerId': widget.farmerId,
           'email': user.email,
-          'loan': selected,
+          'loan': loanAppController.text,
           'loan status': "inactive",
           'repayment period': loanPeriod.toInt(),
           'payableLoan': payableLoan.toInt(),
@@ -178,10 +214,14 @@ class _LoansState extends State<Loans> {
             })
         : Container();
   } */
+  final currentUser = FirebaseAuth.instance;
   Widget recordList() {
     return Container(
       child: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .where("uid", isEqualTo: currentUser.currentUser!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           return (snapshot.connectionState == ConnectionState.waiting)
               ? Container()
@@ -191,9 +231,7 @@ class _LoansState extends State<Loans> {
                   itemBuilder: (context, index) {
                     var data = snapshot.data!.docs[index].data()
                         as Map<String, dynamic>;
-                    return recordTile(
-                        crb: data['crb'],
-                        shares: data['shares']);
+                    return recordTile(crb: data['crb'], shares: data['shares']);
                   },
                 );
         },
@@ -307,7 +345,7 @@ class _LoansState extends State<Loans> {
       child: Slider(
         value: loanPeriod,
         min: 0,
-        max: 36,
+        max: 24,
         divisions: 12,
         label: '${loanPeriod.toStringAsFixed(0)} months',
         onChanged: (value) {
@@ -337,11 +375,11 @@ class _LoansState extends State<Loans> {
             style: TextStyle(color: Colors.white),
           ),
           onPressed: () {
-            calculateInterest();
+            payableLoan = (double.parse(p) * 0.4 * loanPeriod / 24);
             final snackBar = SnackBar(
                 duration: Duration(seconds: 5),
                 content: Text(
-                    'You have chosen a loan amount of $selected\n You will pay back Ksh within a payment period of ${loanPeriod.toStringAsFixed(0)} months  \n Click submit to proceed with loan application'));
+                    'You have chosen a loan amount of $p\n You will pay back Ksh within a payment period of ${loanPeriod.toStringAsFixed(0)} months  \n Click submit to proceed with loan application'));
 
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
@@ -373,23 +411,26 @@ class _LoansState extends State<Loans> {
                   ),
                 ),
               ),
-              Divider(),
-              Expanded(
+              const Divider(),
+              const Expanded(
                 child: Center(
                     child: Text("Buy more shares to increase your loan limit")),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
               Expanded(
                 child: Center(
-                  child: Text(" Eligible  amount of loan from: ${loanEligible["from"].toString()} "),
+                  child: Text(
+                      " Eligible  amount of loan from: ${loanEligible["from"].toString()} "),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
-              Expanded(child: Center(child: Text("To: ${loanEligible["to"].toString()}"))),
+              Expanded(
+                  child: Center(
+                      child: Text("To: ${loanEligible["to"].toString()}"))),
             ],
           ),
         ),
@@ -404,12 +445,12 @@ class _LoansState extends State<Loans> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: Colors.blue,
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(color: Colors.blue, spreadRadius: 3),
               ],
             ),
             child: TextButton(
-              child: Text(
+              child: const Text(
                 'submit',
                 style: TextStyle(color: Colors.white),
               ),
@@ -432,7 +473,7 @@ class _LoansState extends State<Loans> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: Colors.blue,
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(color: Colors.blue, spreadRadius: 3),
               ],
             ),
@@ -462,7 +503,10 @@ class _LoansState extends State<Loans> {
 
   submitLoan() async {
     if (formKey.currentState!.validate()) {
-      calculateInterest();
+      setState(() {
+        isLoading = true;
+      });
+      payableLoan = double.parse(p) + (double.parse(p) * 0.4 * loanPeriod / 24);
       final FirebaseAuth _auth = FirebaseAuth.instance;
       final FirebaseFirestore _firestore = FirebaseFirestore.instance;
       User? user = await _auth.currentUser;
@@ -472,15 +516,18 @@ class _LoansState extends State<Loans> {
           'name': widget.name,
           'farmerId': widget.farmerId,
           'email': user.email,
-          'loan': selected,
+          'loan': loanAppController.text,
           'loan status': "inactive",
           'repayment period': loanPeriod.toInt(),
           'payableLoan': payableLoan.toInt(),
+          'paid': 0,
+          'bal': 0,
         },
       );
-      final snackBar = SnackBar(
+      const snackBar = SnackBar(
           duration: Duration(seconds: 3),
           content: Text('Loan submitted successfully'));
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
@@ -491,7 +538,7 @@ class _LoansState extends State<Loans> {
       key: _scaffoldKey,
       backgroundColor: Colors.white70,
       appBar: AppBar(
-        title: Text("Loan application"),
+        title: const Text("Loan application"),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -504,22 +551,22 @@ class _LoansState extends State<Loans> {
                     FirebaseFirestore.instance.collection("loan").snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
 
                   return Column(
                     children: <Widget>[
-                       //recordList(),
+                      recordList(),
 
                       farmerEligibleLoan(),
-                      SizedBox(
+                      const SizedBox(
                         width: 50,
                       ),
-                      displayBoard(),
-                      SizedBox(height: 50),
-                      Center(
+                      loanBoard(),
+                      const SizedBox(height: 50),
+                      const Center(
                           child: Text(
                         "Choose the repayment period below",
                         style: TextStyle(color: Colors.white, fontSize: 20.0),
@@ -531,7 +578,7 @@ class _LoansState extends State<Loans> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: Colors.white,
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(color: Colors.green, spreadRadius: 3),
                             ],
                           ),
@@ -546,12 +593,12 @@ class _LoansState extends State<Loans> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       confirmButton(),
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       checkExistLoan(),
 
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       loan1Status(),

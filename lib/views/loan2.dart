@@ -62,7 +62,7 @@ class _Loan2State extends State<Loan2> {
                 value == null ? 'Please select loan amount' : null,
             onChanged: (val) => setState(() => selectedItem = val),
             items: menuItemList,
-            hint: Text("choose loan amount"),
+            hint:const Text("choose loan amount"),
           ),
         ),
       ),
