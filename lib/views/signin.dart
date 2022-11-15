@@ -9,9 +9,13 @@ import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/service/database_service.dart';
 import 'package:mukurewini/views/Admin.dart';
 import 'package:mukurewini/views/AdminManager.dart';
+import 'package:mukurewini/views/MilkRecords.dart';
 
 import 'package:mukurewini/views/home.dart';
+import 'package:mukurewini/views/manager.dart';
+import 'package:mukurewini/views/milk.dart';
 import 'package:mukurewini/views/signup.dart';
+import 'package:mukurewini/views/users.dart';
 
 import '../widgets/widgets.dart';
 
@@ -153,6 +157,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             onPressed: () {
                               login();
+                              // route();
                             },
                           ),
                         ),
@@ -183,7 +188,6 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   login() async {
- 
     if (formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -201,7 +205,12 @@ class _SignInScreenState extends State<SignInScreen> {
           await HelperFunctions.saveUserEmailSF(email);
           await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
 
-          nextScreenReplace(context,  HomeScreen(userId: '',));
+          /*  nextScreenReplace(
+              context,
+              HomeScreen(
+                userId: '',
+              )); */
+          route();
         } else {
           showSnackbar(context, Colors.red, value);
           setState(() {
@@ -211,4 +220,30 @@ class _SignInScreenState extends State<SignInScreen> {
       });
     }
   }
+
+  void route() {
+    User? user = FirebaseAuth.instance.currentUser;
+    var kk = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot.get('admin') == 'true') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => manager()));
+        }
+        if (documentSnapshot.get('agent') == 'true') {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => Users(userId: '')));
+        } else {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => Records(userId: '')));
+        }
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
+  }
+
 }

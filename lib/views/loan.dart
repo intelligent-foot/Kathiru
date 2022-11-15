@@ -104,24 +104,30 @@ class _LoansState extends State<Loans> {
     return TextFormField(
       keyboardType: TextInputType.number,
       validator: (val) {
-           if (double.tryParse(val!)! > 10000) {
-              return "Value is cannot be more than 10000";
-            }
-        
-           if (val.isEmpty) {
-             return "Value cannot be empty";
-           }
-        
+        if (double.tryParse(val!)! > loanEligible['to']) {
+          return "Value is cannot be more ${loanEligible['to'].toString()} ";
+        }
+
+        if (val.isEmpty) {
+          return "Value cannot be empty";
+        }
       },
       controller: loanAppController,
       onChanged: (value) {
         p = value;
+        print('amount is ${p}');
       },
       style: TextStyle(color: Colors.black),
-      decoration: InputDecoration(
-        hintText: 'Enter amount of loan',
+      decoration: const InputDecoration(
+        hintText: 'Choose loan amount..',
         fillColor: Colors.white54,
         filled: true,
+        enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 2.0)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.blueAccent, width: 2.0))
       ),
     );
   }
@@ -168,8 +174,8 @@ class _LoansState extends State<Loans> {
     }
   }
 
-  calculatBal (){
-     if (formKey.currentState!.validate()){}
+  calculatBal() {
+    if (formKey.currentState!.validate()) {}
   }
 
   submitAnotherLoan() async {

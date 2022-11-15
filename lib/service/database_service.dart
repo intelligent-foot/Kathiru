@@ -34,7 +34,7 @@ class DatabaseService {
       "fullName": fullName,
       "email": email,
       "uid": uid,
-      "admin": false,
+      "admin": 'false',
 
       'joinedAt': formattedDate,
       'createdAt': Timestamp.now(),

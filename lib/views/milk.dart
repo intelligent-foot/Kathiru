@@ -10,6 +10,8 @@ import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/widgets/widgets.dart';
 import 'package:date_format/date_format.dart';
 
+import 'signin.dart';
+
 class MilkAgent extends StatefulWidget {
   String name;
   String email;
@@ -243,6 +245,15 @@ class _MilkAgentState extends State<MilkAgent> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+            actions: [
+          IconButton(
+              onPressed: () {
+                logout(context);
+              },
+              icon: Icon(
+                Icons.logout,
+              ))
+        ],
         title: const Text('Wakulima'),
       ),
       body: isLoading
@@ -462,5 +473,11 @@ class _MilkAgentState extends State<MilkAgent> {
               ),
             ),
     );
+  }
+  Future<void> logout(BuildContext context) async {
+    CircularProgressIndicator();
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SignInScreen()));
   }
 }

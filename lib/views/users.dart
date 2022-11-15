@@ -9,6 +9,7 @@ import 'package:mukurewini/views/chat.dart';
 import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/views/milk.dart';
 import 'package:mukurewini/views/profile_screen.dart';
+import 'package:mukurewini/views/signup.dart';
 import 'package:mukurewini/widgets/widgets.dart';
 
 class Users extends StatefulWidget {
@@ -22,7 +23,9 @@ class Users extends StatefulWidget {
 class _UsersState extends State<Users> {
   int currentIndex = 0;
   final screens = [
-    HomeScreen(userId: '',),
+    HomeScreen(
+      userId: '',
+    ),
     ProfileScreen(
       email: '',
       userName: '',
@@ -131,7 +134,11 @@ class _FarmerState extends State<Farmer> {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomeScreen(userId: '',)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomeScreen(
+                      userId: '',
+                    )));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -170,7 +177,7 @@ class _FarmerState extends State<Farmer> {
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
                 onTap: () {
-                 /*  Navigator.push(
+                  /*  Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => MilkAgent(
@@ -255,12 +262,10 @@ class _SearchFarmerState extends State<SearchFarmer> {
                   userName!,
                   style: mediumTextStyle(),
                 ),
-              (
-                  Text(
-                    'farmerId: $farmerId',
-                    style: mediumTextStyle(),
-                  )
-                ),
+                (Text(
+                  'farmerId: $farmerId',
+                  style: mediumTextStyle(),
+                )),
               ],
             ),
           ),
@@ -293,6 +298,7 @@ class _SearchFarmerState extends State<SearchFarmer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+    
         title: Card(
           child: TextField(
             decoration: InputDecoration(
@@ -344,10 +350,9 @@ class _SearchFarmerState extends State<SearchFarmer> {
                         .toLowerCase()
                         .startsWith(name.toLowerCase())) {
                       return SearchTile(
-                        userName: data['fullName'],
-                        farmerId: data['uid'],
-                        email: data['email']
-                      );
+                          userName: data['fullName'],
+                          farmerId: data['uid'],
+                          email: data['email']);
 
                       /* ListTile(
                         title: Text(
@@ -376,4 +381,6 @@ class _SearchFarmerState extends State<SearchFarmer> {
       ),
     );
   }
+
+  
 }
