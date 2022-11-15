@@ -10,9 +10,12 @@ import 'package:mukurewini/service/database_service.dart';
 import 'package:mukurewini/views/Admin.dart';
 import 'package:mukurewini/views/AdminManager.dart';
 import 'package:mukurewini/views/MilkRecords.dart';
+import 'package:mukurewini/views/agent.dart';
+import 'package:mukurewini/views/farmer.dart';
 
 import 'package:mukurewini/views/home.dart';
 import 'package:mukurewini/views/manager.dart';
+import 'package:mukurewini/views/manager_screen.dart';
 import 'package:mukurewini/views/milk.dart';
 import 'package:mukurewini/views/signup.dart';
 import 'package:mukurewini/views/users.dart';
@@ -31,7 +34,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";
-  String role = 'user';
+  // String role = 'user';
 
   AuthService authService = AuthService();
 
@@ -179,7 +182,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     nextScreen(context, const SignUpScreen());
                                   })
                           ],
-                        ))
+                        )),
                       ],
                     )),
               ),
@@ -229,21 +232,20 @@ class _SignInScreenState extends State<SignInScreen> {
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        if (documentSnapshot.get('admin') == 'true') {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => manager()));
-        }
-        if (documentSnapshot.get('agent') == 'true') {
+        if (documentSnapshot.get('role') == 'manager') {
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => Users(userId: '')));
+              MaterialPageRoute(builder: (context) => const ManagerScreen()));
+        }
+        if (documentSnapshot.get('role') == 'Milk Agent') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const Agent()));
         } else {
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => Records(userId: '')));
+              MaterialPageRoute(builder: (context) => const FarmerScreen()));
         }
       } else {
         print('Document does not exist on the database');
       }
     });
   }
-
 }

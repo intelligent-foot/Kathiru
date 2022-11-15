@@ -1,11 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mukurewini/helper/helper_functions.dart';
 import 'package:mukurewini/service/auth_service.dart';
 import 'package:mukurewini/views/home.dart';
+import 'package:mukurewini/views/manager_screen.dart';
 import 'package:mukurewini/views/signin.dart';
 
 import '../widgets/widgets.dart';
+import 'agent.dart';
+import 'farmer.dart';
+import 'manager.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -22,6 +28,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String fullName = "";
   int? randomNumber;
   AuthService authService = AuthService();
+  var options = ['Farmer', 'Milk Agent'];
+  var _currentItemSelected = "Farmer";
+  var role = "Farmer";
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +140,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(
                           height: 20,
                         ),
+                        const Text(
+                          "Role : ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        DropdownButton<String>(
+                          dropdownColor: Colors.blue[900],
+                          isDense: true,
+                          isExpanded: false,
+                          iconEnabledColor: Colors.black,
+                          focusColor: Colors.black,
+                          items: options.map((String dropDownStringItem) {
+                            return DropdownMenuItem<String>(
+                              value: dropDownStringItem,
+                              child: Text(
+                                dropDownStringItem,
+                                style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newValueSelected) {
+                            setState(() {
+                              _currentItemSelected = newValueSelected!;
+                              role = newValueSelected;
+                            });
+                          },
+                          value: _currentItemSelected,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -184,14 +231,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _isLoading = true;
       });
       await authService
-          .registerUserWithEmailandPassword(fullName, email, password)
+          .registerUserWithEmailandPassword(fullName, email, password, role)
           .then((value) async {
         if (value == true) {
           //saving the shared pf state
           await HelperFunctions.saveUserLoggedInStatus(true);
           await HelperFunctions.saveUserEmailSF(email);
           await HelperFunctions.saveUserNameSF(fullName);
-          nextScreenReplace(context,  HomeScreen(userId: '',));
+          await HelperFunctions.saveUserRoleSF(role);
+          /* nextScreenReplace(
+              context,
+              HomeScreen(
+                userId: '',
+              )); */
+          route();
         } else {
           showSnackbar(context, Colors.red, value);
           setState(() {
@@ -200,5 +253,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
         }
       });
     }
+  }
+
+  void route() {
+    User? user = FirebaseAuth.instance.currentUser;
+    var kk = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot.get('role') == 'manager') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => ManagerScreen()));
+        }
+        if (documentSnapshot.get('role') == 'Milk Agent') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const Agent()));
+        } else {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const FarmerScreen()));
+        }
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
   }
 }

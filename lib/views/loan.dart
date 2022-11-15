@@ -101,33 +101,38 @@ class _LoansState extends State<Loans> {
   }
 
   Widget loanBoard() {
-    return TextFormField(
-      keyboardType: TextInputType.number,
-      validator: (val) {
-        if (double.tryParse(val!)! > loanEligible['to']) {
-          return "Value is cannot be more ${loanEligible['to'].toString()} ";
-        }
+    return Container(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            keyboardType: TextInputType.number,
+            validator: (val) {
+              if (double.tryParse(val!)! > loanEligible['to']) {
+                return "Value is cannot be more ${loanEligible['to'].toString()} ";
+              }
 
-        if (val.isEmpty) {
-          return "Value cannot be empty";
-        }
-      },
-      controller: loanAppController,
-      onChanged: (value) {
-        p = value;
-        print('amount is ${p}');
-      },
-      style: TextStyle(color: Colors.black),
-      decoration: const InputDecoration(
-        hintText: 'Choose loan amount..',
-        fillColor: Colors.white54,
-        filled: true,
-        enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 2.0)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Colors.blueAccent, width: 2.0))
+              if (val.isEmpty) {
+                return "Value cannot be empty";
+              }
+            },
+            controller: loanAppController,
+            onChanged: (value) {
+              p = value;
+              print('amount is ${p}');
+            },
+            style: TextStyle(color: Colors.black),
+            decoration: const InputDecoration(
+                hintText: 'Choose loan amount..',
+                fillColor: Colors.white54,
+                filled: true,
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: 2.0)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.blueAccent, width: 2.0))),
+          ),
+        ],
       ),
     );
   }
@@ -385,7 +390,7 @@ class _LoansState extends State<Loans> {
             final snackBar = SnackBar(
                 duration: Duration(seconds: 5),
                 content: Text(
-                    'You have chosen a loan amount of $p\n You will pay back Ksh within a payment period of ${loanPeriod.toStringAsFixed(0)} months  \n Click submit to proceed with loan application'));
+                    'You have chosen a loan amount of $p\n You will pay back with an interest of Ksh ${payableLoan.ceil()} \nwithin a payment period of ${loanPeriod.toStringAsFixed(0)} months  \n Click submit to proceed with loan application'));
 
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
@@ -512,6 +517,7 @@ class _LoansState extends State<Loans> {
       setState(() {
         isLoading = true;
       });
+      print('done');
       payableLoan = double.parse(p) + (double.parse(p) * 0.4 * loanPeriod / 24);
       final FirebaseAuth _auth = FirebaseAuth.instance;
       final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -530,6 +536,8 @@ class _LoansState extends State<Loans> {
           'bal': 0,
         },
       );
+      loan();
+
       const snackBar = SnackBar(
           duration: Duration(seconds: 3),
           content: Text('Loan submitted successfully'));
@@ -570,7 +578,28 @@ class _LoansState extends State<Loans> {
                       const SizedBox(
                         width: 50,
                       ),
-                      loanBoard(),
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        validator: (val) {
+                          return val!.isEmpty ? "Cannot be empty" : null;
+                        },
+                        controller: loanAppController,
+                        onChanged: (value) {
+                          p = value;
+                          print('amount is ${p}');
+                        },
+                        style: TextStyle(color: Colors.black),
+                        decoration: const InputDecoration(
+                            hintText: 'Choose loan amount..',
+                            fillColor: Colors.white54,
+                            filled: true,
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.white, width: 2.0)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.blueAccent, width: 2.0))),
+                      ),
                       const SizedBox(height: 50),
                       const Center(
                           child: Text(
@@ -615,5 +644,22 @@ class _LoansState extends State<Loans> {
         ),
       ),
     );
+  }
+
+  void loan() {
+    User? user = FirebaseAuth.instance.currentUser;
+    var kk = FirebaseFirestore.instance
+        .collection('loan')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot.get('loan') == '0') {
+          submitLoan();
+        } else {
+    print('Document does not exist on the database');
+        }
+      }
+    });
   }
 }

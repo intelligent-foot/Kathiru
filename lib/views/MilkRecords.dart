@@ -92,42 +92,34 @@ class _RecordsState extends State<Records> {
         : Container();
   } */
 
-   Future queryValues() async {
+  Future queryValues() async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     User user = _auth.currentUser!;
 
     await FirebaseFirestore.instance
         .collection('farmers')
-       // .doc(user.uid)
-      //  .doc(FirebaseAuth.instance.currentUser!.uid)
-      //  .collection('farmers')
-       // .snapshots()
-       // .snapshots()
+        // .doc(user.uid)
+        //  .doc(FirebaseAuth.instance.currentUser!.uid)
+        //  .collection('farmers')
+        // .snapshots()
+        // .snapshots()
         .where("email", isEqualTo: user.email)
         .get()
         .then((snapshot) {
-          double tempTotal = snapshot.docs.fold(
-            0, (prev, element) => prev + element['kilograms']);
-           FirebaseFirestore.instance
+      double tempTotal =
+          snapshot.docs.fold(0, (prev, element) => prev + element['kilograms']);
+      FirebaseFirestore.instance
           .collection("users")
           .doc(user.uid)
-          .update({
-            "cummulativeRecords": total
-            });
-          
-          setState(() {
+          .update({"cummulativeRecords": total});
+
+      setState(() {
         total = tempTotal;
         earnedAmount = total * price;
       });
       debugPrint(total.toString());
-
-        });
-         
-      
-}
- 
-
- 
+    });
+  }
 
   recommendVet() {
     if (difference! >= 5) {
@@ -140,17 +132,18 @@ class _RecordsState extends State<Records> {
   }
 
   initiateSearch() {
-    DatabaseService.getFarmerRecordsByEmail().then((val) {
+    DatabaseService().getFarmerRecordsByEmail().then((val) {
       setState(() {
         recordsSnapshot = val;
-       // print('$recordsSnapshot');
+        // print('$recordsSnapshot');
         firstAmount = recordsSnapshot!.docs[0]['kilograms'];
+        print(' KILOGRAM IS ${firstAmount}');
         secondAmount = recordsSnapshot!.docs[1]['kilograms'];
 
         difference = (secondAmount! - firstAmount!);
         name = recordsSnapshot!.docs[1]['fullName'];
         email = recordsSnapshot!.docs[0]['email'];
-        recommendVet(); 
+        recommendVet();
       });
     });
   }

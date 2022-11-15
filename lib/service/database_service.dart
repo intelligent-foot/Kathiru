@@ -23,6 +23,7 @@ class DatabaseService {
   Future savingUserData(
     String fullName,
     String email,
+    String role,
 
     /*String Kilograms,String ServedBy*/
   ) async {
@@ -34,7 +35,8 @@ class DatabaseService {
       "fullName": fullName,
       "email": email,
       "uid": uid,
-      "admin": 'false',
+     // "admin": 'false',
+     'role': role,
 
       'joinedAt': formattedDate,
       'createdAt': Timestamp.now(),
@@ -42,7 +44,7 @@ class DatabaseService {
       "crb": "cleared",
       "status": "online",
       "last_seen": DateFormat.yMd().add_jm().format(DateTime.now()),
-      "agent": "false",
+     // "agent": "false",
       "farmerId": randomNumber,
       "cumulative Records": 0,
 
@@ -108,12 +110,12 @@ class DatabaseService {
         .catchError((error) => print("Vet couldn't be added"));
   }
 
-  static Future getFarmerRecordsByEmail() async {
+   getFarmerRecordsByEmail() async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     User user =  _auth.currentUser!;
-    return await FirebaseFirestore.instance
-        .collection("users")
+    await FirebaseFirestore.instance
+        .collection("farmers")
         .where("email", isEqualTo: user.email)
          .orderBy("date", descending: true)
         .get();

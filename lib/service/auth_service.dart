@@ -30,7 +30,7 @@ class AuthService {
 
 //register
   Future registerUserWithEmailandPassword(
-      String fullName, String email, String password) async {
+      String fullName, String email, String password, String role) async {
     try {
       User user = (await firebaseAuth.createUserWithEmailAndPassword(
               email: email, password: password))
@@ -41,6 +41,7 @@ class AuthService {
         await DatabaseService(uid: user.uid).savingUserData(
           fullName,
           email,
+          role
           
         );
         return true;

@@ -68,9 +68,10 @@ class _MilkAgentState extends State<MilkAgent> {
       print(userName);
     });
   }
+  
 
   initiateSearch() {
-    DatabaseService.getFarmerRecordsByEmail().then((val) {
+    DatabaseService().getFarmerRecordsByEmail().then((val) {
       setState(() {
         recordsSnapshot = val;
       });
@@ -218,18 +219,16 @@ class _MilkAgentState extends State<MilkAgent> {
       print('farmerId is ${widget.farmerId}');
       print('email is ${widget.email}');
 
-      Map<String, dynamic> UserInfoMap = {
+     
+          await FirebaseFirestore.instance.collection("farmers").add({
         "email": widget.email,
-        "date": DateFormat.yMd().add_jm().format(DateTime.now()),
-        "kilograms": double.tryParse(todayMilkController.text),
-        "farmerId": widget.farmerId,
-        "name": widget.name,
+        'date': new DateFormat.yMd().add_jm().format(DateTime.now()),
+        'kilograms': double.parse(todayMilkController.text),
+        'farmerId': widget.farmerId,
+        'name': widget.name,
         "location": selected,
-        
-        //"servedBy": userSnapshot!["name"],
-      };
-
-      databaseService.uploadMilkInfo(UserInfoMap);
+       // "servedBy": userSnapshot["name"],
+      });
       const snackBar = SnackBar(
           duration: Duration(seconds: 3),
           content: Text('Milk recorded successfully'));
