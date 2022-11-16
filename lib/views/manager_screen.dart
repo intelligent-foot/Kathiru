@@ -232,7 +232,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
                 style: TextStyle(color: Colors.black),
               ),
             ),
-            /*  ListTile(
+             ListTile(
               onTap: () {
                 nextScreenReplace(context, manager());
               },
@@ -243,7 +243,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
                 "Admin",
                 style: TextStyle(color: Colors.black),
               ),
-            ), */
+            ), 
           ],
         ),
       ),

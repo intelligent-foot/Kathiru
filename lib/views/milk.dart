@@ -68,12 +68,12 @@ class _MilkAgentState extends State<MilkAgent> {
       print(userName);
     });
   }
-  
 
   initiateSearch() {
-    DatabaseService().getFarmerRecordsByEmail().then((val) {
+    DatabaseService.getFarmerRecordsByEmail().then((val) {
       setState(() {
         recordsSnapshot = val;
+        print('$val');
       });
     });
   }
@@ -219,15 +219,14 @@ class _MilkAgentState extends State<MilkAgent> {
       print('farmerId is ${widget.farmerId}');
       print('email is ${widget.email}');
 
-     
-          await FirebaseFirestore.instance.collection("farmers").add({
+      await FirebaseFirestore.instance.collection("farmers").add({
         "email": widget.email,
         'date': new DateFormat.yMd().add_jm().format(DateTime.now()),
         'kilograms': double.parse(todayMilkController.text),
         'farmerId': widget.farmerId,
         'name': widget.name,
         "location": selected,
-       // "servedBy": userSnapshot["name"],
+        // "servedBy": userSnapshot["name"],
       });
       const snackBar = SnackBar(
           duration: Duration(seconds: 3),
@@ -244,7 +243,7 @@ class _MilkAgentState extends State<MilkAgent> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-            actions: [
+        actions: [
           IconButton(
               onPressed: () {
                 logout(context);
@@ -319,8 +318,7 @@ class _MilkAgentState extends State<MilkAgent> {
                                           ? "Cannot be empty"
                                           : null;
                                     },
-                                    initialValue:
-                                        "Email: ${widget.email} ",
+                                    initialValue: "Email: ${widget.email} ",
                                     style: const TextStyle(color: Colors.black),
                                     decoration: const InputDecoration(
                                         fillColor: Colors.white,
@@ -393,7 +391,7 @@ class _MilkAgentState extends State<MilkAgent> {
                                   const SizedBox(
                                     height: 50,
                                   ),
-                                //  recordList(),
+                                  //  recordList(),
                                 ],
                               ),
                             ),
@@ -473,6 +471,7 @@ class _MilkAgentState extends State<MilkAgent> {
             ),
     );
   }
+
   Future<void> logout(BuildContext context) async {
     CircularProgressIndicator();
     await FirebaseAuth.instance.signOut();

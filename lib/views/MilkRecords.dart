@@ -70,7 +70,7 @@ class _RecordsState extends State<Records> {
                           name: data['name'],
                           farmerId: data['farmerId'],
                           date: data['date'],
-                          kilograms: ['kilograms']);
+                          kilograms: data['kilograms']);
                     }));
           })),
     );
@@ -131,22 +131,56 @@ class _RecordsState extends State<Records> {
     }
   }
 
-  initiateSearch() {
-    DatabaseService().getFarmerRecordsByEmail().then((val) {
-      setState(() {
-        recordsSnapshot = val;
-        // print('$recordsSnapshot');
-        firstAmount = recordsSnapshot!.docs[0]['kilograms'];
-        print(' KILOGRAM IS ${firstAmount}');
-        secondAmount = recordsSnapshot!.docs[1]['kilograms'];
+  initiateSearch() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    User user = _auth.currentUser!;
+    await FirebaseFirestore.instance
+        .collection("farmers")
+        .where("email", isEqualTo: user.email)
+        .orderBy("date", descending: true)
+        .get()
+        .then(
+      (value) {
+        setState(() {
+          // print('$recordsSnapshot');
+          firstAmount = value.docs[0]['kilograms'];
+          print(' KILOGRAM IS ${firstAmount}');
+          secondAmount = value.docs[1]['kilograms'];
 
-        difference = (secondAmount! - firstAmount!);
-        name = recordsSnapshot!.docs[1]['fullName'];
-        email = recordsSnapshot!.docs[0]['email'];
+          difference = (secondAmount! - firstAmount!);
+          name = value.docs[1]['fullName'];
+          email = value.docs[0]['email'];
+          recommendVet();
+        });
+      },
+    );
+  }
+
+/*   Future initiateSearch() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    User user = _auth.currentUser!;
+
+    await FirebaseFirestore.instance
+        .collection('farmers')
+        // .doc(user.uid)
+        //  .doc(FirebaseAuth.instance.currentUser!.uid)
+        //  .collection('farmers')
+        // .snapshots()
+        // .snapshots()
+        .where("email", isEqualTo: user.email)
+        .get()
+        .then((snapshot) {
+      setState(() {
+        firstAmount = snapshot.docs[0]['kilograms'];
+        secondAmount = snapshot.docs[1]['kilograms'];
+        difference = secondAmount! - firstAmount!;
+        name = snapshot.docs[1]['fullName'];
+        email = snapshot.docs[0]['email'];
         recommendVet();
       });
     });
-  }
+  } */
 
   Widget _buildAboutText() {
     return RichText(
@@ -213,6 +247,7 @@ class _RecordsState extends State<Records> {
 
     super.initState();
     queryValues();
+    print('$queryValues()');
   }
 
   Widget recordTile(
@@ -322,7 +357,7 @@ class _RecordsState extends State<Records> {
                 ),
                 Center(
                   child: Text(
-                    'Amount earned: ${total * price} Kshs',
+                    'Amount earned: ${(kilograms * price)} Kshs',
                     // style: mediumTextStyle(),
                     style: const TextStyle(
                       fontSize: 17.0,
@@ -407,7 +442,7 @@ class _RecordsState extends State<Records> {
                                     builder: (context) => Loans(
                                           farmerId: '',
                                           name: '',
-                                          total: 23,
+                                          total: total.round(),
                                         )));
                           },
                           child: Container(

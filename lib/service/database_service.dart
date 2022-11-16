@@ -110,7 +110,7 @@ class DatabaseService {
         .catchError((error) => print("Vet couldn't be added"));
   }
 
-   getFarmerRecordsByEmail() async {
+   static Future  getFarmerRecordsByEmail() async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     User user =  _auth.currentUser!;

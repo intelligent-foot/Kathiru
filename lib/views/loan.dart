@@ -578,27 +578,37 @@ class _LoansState extends State<Loans> {
                       const SizedBox(
                         width: 50,
                       ),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        validator: (val) {
-                          return val!.isEmpty ? "Cannot be empty" : null;
-                        },
-                        controller: loanAppController,
-                        onChanged: (value) {
-                          p = value;
-                          print('amount is ${p}');
-                        },
-                        style: TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                            hintText: 'Choose loan amount..',
-                            fillColor: Colors.white54,
-                            filled: true,
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.white, width: 2.0)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.blueAccent, width: 2.0))),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          keyboardType: TextInputType.number,
+                          validator: (val) {
+                            if (double.tryParse(val!)! < 5000 ||
+                                double.tryParse(val)! < 10000) {
+                              return "Value is cannot be more than 100";
+                            }
+                            if (val.isEmpty) {
+                              return "Value cannot be empty";
+                            }
+                            return null;
+                          },
+                          controller: loanAppController,
+                          onChanged: (value) {
+                            p = value;
+                            print('amount is ${p}');
+                          },
+                          style: TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                              hintText: 'Choose loan amount..',
+                              fillColor: Colors.white54,
+                              filled: true,
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.white, width: 2.0)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.blueAccent, width: 2.0))),
+                        ),
                       ),
                       const SizedBox(height: 50),
                       const Center(
@@ -657,7 +667,7 @@ class _LoansState extends State<Loans> {
         if (documentSnapshot.get('loan') == '0') {
           submitLoan();
         } else {
-    print('Document does not exist on the database');
+          print('Document does not exist on the database');
         }
       }
     });
